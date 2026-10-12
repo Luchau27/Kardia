@@ -1,5 +1,5 @@
 /* Kardia – service worker. Changer VERSION à chaque mise à jour pour que les téléphones récupèrent les nouveaux fichiers. */
-const VERSION = 'kardia-1.2.0';
+const VERSION = 'kardia-1.2.1';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'style.css',
   'config.js', 'store.js', 'dates.js', 'rules.js', 'ui.js', 'avatar.js',
@@ -21,7 +21,7 @@ self.addEventListener('fetch', e => {
   if (!sameOrigin && !fonts) return;
   // Réseau d'abord (pour recevoir les mises à jour), cache en secours (hors-ligne).
   e.respondWith(
-    fetch(req).then(res => {
+    fetch(req, { cache: 'no-cache' }).then(res => {
       if (res && (res.ok || res.type === 'opaque')) {
         const copy = res.clone();
         caches.open(VERSION).then(c => c.put(req, copy));
