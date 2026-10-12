@@ -8,7 +8,8 @@
     'cellule-nk': { name: 'Cellule NK', role: 'La ninja', colors: [['#343B63', '#1E2340', '#E8344E'], ['#40336A', '#261D44', '#30C9B4'], ['#1F4D4D', '#113232', '#FFB23F']] }
   };
   const ACCESSORIES = { none: 'Aucun', lunettes: 'Lunettes', casquette: 'Casquette', bandeau: 'Bandeau', ecouteurs: 'Écouteurs', couronne: 'Couronne' };
-  const LOCKED = { couronne: 'Se débloque en complétant une collection' };
+  const LOCKED_MSG = { couronne: 'Se débloque en complétant une catégorie de cartes' };
+  const LOCKED = new Proxy(LOCKED_MSG, { get: (t, k) => (k === 'couronne' && K.collection && K.collection.anyCatComplete()) ? undefined : t[k] });
   const INK = '#1B1426';
 
   function blob(cx, cy, R, fn, n = 56) {

@@ -39,7 +39,7 @@
       </div>
       <p>${ui.esc(r.why)}</p>
       <div class="money"><span>💶</span><p>${ui.esc(K.rules.money(r, s))}</p></div>
-      <p class="reward-hint">${ui.icons.puls} Victoire : <b>+${reward}</b> ${K.config.currency.name}${it.due && it.status !== 'late' ? ` · bonus de <b>+${K.config.rewards.earlyBonus}</b> si tu le fais en avance` : ''}</p>
+      <p class="reward-hint">${ui.icons.puls} Victoire : <b>+${reward}</b> ${K.config.currency.name} et <b>1 Pack Boss</b>${it.due && it.status !== 'late' ? ` · bonus de <b>+${K.config.rewards.earlyBonus}</b> si tu le fais en avance` : ''}</p>
       <div class="actions">
         ${r.doctolib ? `<a class="btn doctolib" href="${doctolibURL(r)}" target="_blank" rel="noopener">Chercher sur Doctolib</a>` : ''}
         ${r.maps ? `<button class="btn ghost" data-a="near">📍 Autour de moi</button>` : ''}
@@ -129,11 +129,12 @@
       rec.last = dateISO; delete rec.planned; delete rec.snoozeUntil;
       s.history.push({ id: r.id, date: dateISO, proof: proofId, reward: amount });
       s.wallet.pulsations += amount;
+      s.packs.push({ type: 'boss', from: r.id, at: dateISO });
     });
     ui.close();
     setTimeout(() => ui.reward({
       title: r.type === 'boss' ? `${r.boss} est vaincu !` : `${r.boss} te rejoint !`,
-      amount, sub: early ? `Dont +${early} pour l’avance. Ton héros avance sur le sentier.` : 'Ton héros avance sur le sentier.'
+      amount, extra: '+ 1 Pack Boss à ouvrir dans ta Collection', sub: early ? `Dont +${early} pour l’avance. Ton héros avance sur le sentier.` : 'Ton héros avance sur le sentier.'
     }), 280);
   }
 

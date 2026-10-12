@@ -41,6 +41,7 @@
   /* ---------- Rendu ---------- */
   let root, mode = 'scene';
   function render() {
+    if (K.missions) K.missions.ensureFreePack();
     const s = K.store.get(), dec = buildDecor();
     root = document.getElementById('app');
     root.innerHTML = `
@@ -60,6 +61,10 @@
         <header class="map-head"><button class="icon-btn" data-a="close-map" aria-label="Revenir au monde">${ui.icons.back}</button><h2>Ton sentier</h2></header>
         <div class="map-track"></div>
       </section>
+      <section class="panel" hidden>
+        <header class="map-head"><button class="icon-btn" data-a="close-panel" aria-label="Revenir au monde">${ui.icons.back}</button><h2></h2></header>
+        <div class="panel-body"></div>
+      </section>
       <header class="hud">
         <div class="hud-left">
           <button class="me-btn" data-a="settings" aria-label="Réglages">${ui.esc((s.profile.pseudo || '?').slice(0, 1).toUpperCase())}</button>
@@ -67,13 +72,13 @@
         </div>
         <div class="hud-right">
           <div class="wallet" aria-label="${K.config.currency.name}">${ui.icons.puls}<span data-wallet></span></div>
-          <button class="icon-btn shop" data-a="soon" data-what="La boutique" aria-label="Boutique">${ui.icons.shop}</button>
+          <button class="icon-btn shop" data-a="tab" data-tab="shop" aria-label="Boutique">${ui.icons.shop}</button>
         </div>
       </header>
       <nav class="tabbar">
-        <button data-a="soon" data-what="Les missions du jour">${ui.icons.missions}<span>Missions</span></button>
-        <button data-a="soon" data-what="La collection de cartes">${ui.icons.cards}<span>Collection</span></button>
-        <button class="tab-map" data-a="toggle-map" aria-label="Mon sentier"><span class="tab-map-circle">${ui.icons.map}</span><span>Sentier</span></button>
+        <button data-a="tab" data-tab="missions">${ui.icons.missions}<span>Missions</span><i class="badge" data-badge="missions" hidden></i></button>
+        <button data-a="tab" data-tab="collection">${ui.icons.cards}<span>Collection</span><i class="badge" data-badge="collection" hidden></i></button>
+        <button class="tab-map" data-a="tab" data-tab="map" aria-label="Mon sentier"><span class="tab-map-circle">${ui.icons.map}</span><span>Sentier</span></button>
         <button data-a="soon" data-what="Le classement">${ui.icons.rank}<span>Classement</span></button>
         <button data-a="soon" data-what="Les niveaux bonus">${ui.icons.bonus}<span>Bonus</span></button>
       </nav>
@@ -81,6 +86,7 @@
     bind();
     refresh();
     if (mode === 'map') openMap(true);
+    else if (panel) openPanel(panel);
   }
 
   function refresh() {
@@ -96,6 +102,33 @@
       t.innerHTML = `<span class="t-emoji">${next.rule.emoji}</span><span><small>Prochaine étape</small><b>${ui.esc(next.rule.short)}</b><em>${ui.esc(next.label)}</em></span>`;
     } else t.hidden = true;
     if (mode === 'map') renderMap();
+    if (panel) renderPanel();
+    const bm = root.querySelector('[data-badge=missions]'), bc = root.querySelector('[data-badge=collection]');
+    const nm = K.missions ? K.missions.claimable() : 0, np = s.packs ? s.packs.length : 0;
+    bm.hidden = !nm; bm.textContent = nm; bc.hidden = !np; bc.textContent = np;
+  }
+
+  /* ---------- Panneaux (missions, collection, boutique) ---------- */
+  const PANELS = {
+    missions: { title: 'Missions', render: el => K.missions.render(el) },
+    collection: { title: 'Collection', render: el => K.collection.renderGallery(el) },
+    shop: { title: 'Boutique', render: el => K.shop.render(el) }
+  };
+  let panel = null;
+  function setTab(name) { root.querySelectorAll('.tabbar [data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === name)); }
+  function openPanel(name) {
+    if (!PANELS[name]) return;
+    if (mode === 'map') closeMap(true);
+    panel = name;
+    const el = root.querySelector('.panel'); el.hidden = false;
+    el.querySelector('h2').textContent = PANELS[name].title;
+    root.querySelector('.game').classList.add('paneling');
+    renderPanel(); el.scrollTop = 0; setTab(name);
+  }
+  function renderPanel() { const el = root.querySelector('.panel'), st = el.scrollTop; PANELS[panel].render(el.querySelector('.panel-body')); el.scrollTop = st; }
+  function closePanel() {
+    panel = null; const el = root.querySelector('.panel'); if (el) el.hidden = true;
+    root.querySelector('.game').classList.remove('paneling'); setTab(mode === 'map' ? 'map' : null);
   }
 
   /* ---------- Sentier ---------- */
@@ -127,7 +160,8 @@
   }
 
   function openMap(instant) {
-    mode = 'map';
+    if (panel) closePanel();
+    mode = 'map'; setTab('map');
     const scene = root.querySelector('.scene'), map = root.querySelector('.map');
     map.hidden = false; root.querySelector('.game').classList.add('mapping');
     const meY = renderMap();
@@ -135,10 +169,11 @@
     scene.style.transform = '';
     if (!instant) { map.classList.add('enter'); requestAnimationFrame(() => requestAnimationFrame(() => map.classList.remove('enter'))); }
   }
-  function closeMap() {
-    mode = 'scene';
-    const map = root.querySelector('.map'); map.classList.add('leave');
-    root.querySelector('.game').classList.remove('mapping');
+  function closeMap(instant) {
+    mode = 'scene'; setTab(null);
+    const map = root.querySelector('.map'); root.querySelector('.game').classList.remove('mapping');
+    if (instant) { map.hidden = true; return; }
+    map.classList.add('leave');
     setTimeout(() => { map.hidden = true; map.classList.remove('leave'); }, 280);
   }
 
@@ -194,6 +229,12 @@
         const act = a.dataset.a;
         if (act === 'open-map') openMap();
         if (act === 'toggle-map') mode === 'map' ? closeMap() : openMap();
+        if (act === 'close-panel') closePanel();
+        if (act === 'tab') {
+          const t = a.dataset.tab;
+          if (t === 'map') { mode === 'map' ? closeMap() : openMap(); }
+          else if (panel === t) closePanel(); else openPanel(t);
+        }
         if (act === 'close-map') closeMap();
         if (act === 'checkin') K.checkin.open();
         if (act === 'settings') K.settings.open();
@@ -208,5 +249,5 @@
   window.addEventListener('resize', () => { if (mode === 'map' && root) renderMap(); });
   document.addEventListener('gesturestart', e => e.preventDefault());
 
-  K.world = { render, refresh, openMap, closeMap };
+  K.world = { render, refresh, openMap, closeMap, openPanel, closePanel };
 })();

@@ -1,28 +1,28 @@
-# Mettre Kardia en ligne avec GitHub Pages
+# Kardia : mise en ligne et mises à jour
 
-## Première mise en ligne (partie 1)
-1. Crée un compte sur https://github.com si tu n'en as pas.
-2. En haut à droite : **+** → **New repository**. Nom : `kardia`. Coche **Public**. Clique **Create repository**.
-3. Décompresse le fichier `kardia-partie1.zip` sur ton ordinateur.
-4. Sur la page du dépôt, clique **uploading an existing file** (ou **Add file → Upload files**).
-5. Ouvre le dossier décompressé, sélectionne **tout son contenu** (index.html, sw.js, les dossiers css, js, icons, assets…) et glisse-le dans la page GitHub. Utilise Chrome ou Edge sur ordinateur pour que les dossiers soient bien conservés.
-6. En bas, clique **Commit changes**.
-7. Va dans **Settings → Pages**. Dans « Build and deployment », choisis **Deploy from a branch**, branche **main**, dossier **/ (root)**, puis **Save**.
-8. Attends 1 à 2 minutes. Ton adresse apparaît en haut de la page Pages : `https://TON-PSEUDO.github.io/kardia/`
+## Mettre à jour l'appli (chaque nouvelle partie)
+1. Décompresse le zip reçu sur ton ordinateur.
+2. Dans ton dépôt GitHub : **Add file → Upload files**.
+3. Sélectionne **tous les fichiers** du dossier décompressé et glisse-les dans la page. Ils vont tous à la racine du dépôt, à côté des anciens.
+4. Clique **Commit changes**. Les fichiers de même nom sont remplacés.
+5. Attends 1 à 2 minutes. Sur le téléphone, ferme complètement l'appli puis rouvre-la deux fois. Sur ordinateur : Cmd + Maj + R.
+Les données de jeu restent sur chaque téléphone, une mise à jour ne les efface pas.
+
+## Créer le dossier des images de cartes (une seule fois)
+1. Dans le dépôt : **Add file → Create new file**.
+2. Dans le champ du nom, tape exactement `cartes/lisez-moi.txt` (le « / » crée le dossier).
+3. Écris n'importe quoi dedans (par exemple « images des cartes »), puis **Commit changes**.
+
+## Ajouter des images de cartes (quand tu veux)
+1. Ouvre le dossier **cartes** dans le dépôt.
+2. **Add file → Upload files**, glisse les images, **Commit changes**.
+3. Les noms doivent être exactement ceux du tableau, en .png : `org-01-coeur.png`, `org-01-coeur-fullart.png`, `org-01-coeur-limitee.png`…
+Tant qu'une image manque, la carte affiche un visuel provisoire.
 
 ## Installer sur le téléphone
-- **iPhone** : ouvre l'adresse dans **Safari** → bouton **Partager** → **Sur l'écran d'accueil**.
+- **iPhone** : ouvre l'adresse dans **Safari** → **Partager** → **Sur l'écran d'accueil**.
 - **Android** : ouvre l'adresse dans **Chrome** → menu **⋮** → **Installer l'application**.
 
-## Mettre à jour (parties 2 et 3)
-Refais les étapes 4 à 6 avec le nouveau zip : les fichiers qui portent le même nom sont remplacés, rien d'autre à faire.
-Sur le téléphone, ferme complètement l'appli puis rouvre-la deux fois pour récupérer la nouvelle version.
-Tes données de jeu restent sur le téléphone, la mise à jour ne les efface pas.
-
-## Ajouter les images des cartes
-Dans le dépôt GitHub : ouvre le dossier **assets → cards** → **Add file → Upload files** → glisse les images → **Commit changes**.
-Tu peux le faire quand tu veux, avant ou après les mises à jour. Les noms de fichiers doivent correspondre exactement au tableau.
-
 ## Bon à savoir
-- Le dépôt est public : le code est visible, mais **aucune donnée de santé n'est dedans**. Elles restent sur chaque téléphone.
-- Pense à faire **Réglages → Sauvegarder mes données** de temps en temps : si tu changes de téléphone, tu pourras tout restaurer.
+- Le dépôt est public : le code est visible, mais aucune donnée de santé n'y est. Elles restent sur chaque téléphone.
+- Pense à **Réglages → Sauvegarder mes données** de temps en temps.

@@ -38,7 +38,7 @@
     w.classList.remove('open'); setTimeout(() => w.remove(), 260);
   }
 
-  function reward({ title, amount, sub }) {
+  function reward({ title, amount, sub, extra }) {
     const cur = K.config.currency.name;
     const o = h(`<div class="reward" role="dialog" aria-modal="true">
       <div class="reward-rays"></div>
@@ -46,7 +46,7 @@
         <div class="reward-heart">${logo(84)}</div>
         <h2>${esc(title)}</h2>
         <div class="reward-amount">${icons.puls}<span>+${amount}</span> ${esc(cur)}</div>
-        ${sub ? `<p>${esc(sub)}</p>` : ''}
+        ${extra ? `<p class="reward-extra">🎁 ${esc(extra)}</p>` : ''}${sub ? `<p>${esc(sub)}</p>` : ''}
         <button class="btn primary wide">Continuer</button>
       </div></div>`);
     document.body.appendChild(o);
