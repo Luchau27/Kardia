@@ -1,10 +1,10 @@
 /* Kardia – service worker. Changer VERSION à chaque mise à jour pour que les téléphones récupèrent les nouveaux fichiers. */
-const VERSION = 'kardia-1.0.0';
+const VERSION = 'kardia-1.0.1';
 const SHELL = [
-  './', 'index.html', 'manifest.webmanifest', 'css/style.css',
-  'js/config.js', 'js/store.js', 'js/dates.js', 'js/rules.js', 'js/ui.js', 'js/avatar.js',
-  'js/checkin.js', 'js/echeance.js', 'js/world.js', 'js/settings.js', 'js/onboarding.js', 'js/app.js',
-  'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png', 'icons/favicon.svg'
+  './', 'index.html', 'manifest.webmanifest', 'style.css',
+  'config.js', 'store.js', 'dates.js', 'rules.js', 'ui.js', 'avatar.js',
+  'checkin.js', 'echeance.js', 'world.js', 'settings.js', 'onboarding.js', 'app.js',
+  'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon.svg'
 ];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
