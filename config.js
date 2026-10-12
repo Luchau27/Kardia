@@ -2,7 +2,7 @@
 window.K = window.K || {};
 K.config = {
   appName: 'Kardia',
-  version: '1.1.0',
+  version: '1.2.0',
   cardsPath: 'cartes/',
   currency: { name: 'Pulsations', one: 'Pulsation' },
   rewards: { rdv: 300, admin: 150, auto: 80, earlyBonus: 60 },

@@ -157,7 +157,7 @@
     const craftable = c.r.split('').filter(r => !vs.some(v => v.r === r));
     const body = ui.sheet(`
       <div class="detail-card">${b ? `<button class="flipper" aria-label="Retourner la carte"><span class="flip-in"><span class="flip-front">${cardHTML(b, { cls: 'big' })}</span>
-        <span class="flip-back fact cat-${c.cat}"><b>${ui.esc(c.name)}</b><p>${ui.esc(c.fact)}</p><small>${ui.esc(catById[c.cat].name)}</small></span></span></button>` : missingHTML(c).replace('kcard missing', 'kcard missing big')}</div>
+        <span class="flip-back fact cat-${c.cat}"><img class="back-img" alt="" src="${K.config.cardsPath}${c.file}-dos.png" onload="K.collection.backLoaded(this)" onerror="K.collection.backFailed(this)"><span class="fact-txt"><b>${ui.esc(c.name)}</b><p>${ui.esc(c.fact)}</p><small>${ui.esc(catById[c.cat].name)}</small></span></span></span></button>` : missingHTML(c).replace('kcard missing', 'kcard missing big')}</div>
       ${b ? '<p class="muted center">Touche la carte pour lire son anecdote.</p>' : `<p class="center">${ui.esc(c.fact)}</p>`}
       <p class="muted center">Existe en ${c.r.split('').map(r => RNAME[r]).join(', ')}${c.holo ? ', Holo' : ''}${c.fa ? ', Full Art' : ''}${c.ev ? `, et en édition limitée (${ui.esc(c.ev)})` : ''}.</p>
       ${vs.length ? `<h3 class="q">Tes exemplaires</h3><div class="versions">${vs.map(v => `<span class="ver r-${RCLS[v.r]}">${RNAME[v.r]}${v.v !== 'n' ? ' ' + VNAME[v.v] : ''} <b>×${v.n}</b></span>`).join('')}</div>` : ''}
@@ -197,5 +197,13 @@
     ui.close(); ui.toast(`${byId[id].name} ${RNAME[r]} rejoint ta collection !`);
   }
 
-  K.collection = { RAR, RNAME, RCLS, byId, catById, key, parse, ownedIds, versions, score, catCount, catTotal, anyCatComplete, draw, grantPack, addCards, openPack, cardHTML, renderGallery, detail };
+  /* Dos des cartes : image propre à la carte (xxx-dos.png, déjà avec l'anecdote),
+     sinon dos commun (dos.png) avec l'anecdote écrite par-dessus, sinon texte seul. */
+  function backLoaded(img) { img.parentNode.classList.add(img.dataset.generic ? 'img-bg' : 'img-full'); }
+  function backFailed(img) {
+    if (!img.dataset.generic) { img.dataset.generic = '1'; img.src = K.config.cardsPath + 'dos.png'; return; }
+    img.remove();
+  }
+
+  K.collection = { backLoaded, backFailed, RAR, RNAME, RCLS, byId, catById, key, parse, ownedIds, versions, score, catCount, catTotal, anyCatComplete, draw, grantPack, addCards, openPack, cardHTML, renderGallery, detail };
 })();

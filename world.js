@@ -79,8 +79,8 @@
         <button data-a="tab" data-tab="missions">${ui.icons.missions}<span>Missions</span><i class="badge" data-badge="missions" hidden></i></button>
         <button data-a="tab" data-tab="collection">${ui.icons.cards}<span>Collection</span><i class="badge" data-badge="collection" hidden></i></button>
         <button class="tab-map" data-a="tab" data-tab="map" aria-label="Mon sentier"><span class="tab-map-circle">${ui.icons.map}</span><span>Sentier</span></button>
-        <button data-a="soon" data-what="Le classement">${ui.icons.rank}<span>Classement</span></button>
-        <button data-a="soon" data-what="Les niveaux bonus">${ui.icons.bonus}<span>Bonus</span></button>
+        <button data-a="tab" data-tab="rank">${ui.icons.rank}<span>Classement</span></button>
+        <button data-a="tab" data-tab="bonus">${ui.icons.bonus}<span>Bonus</span></button>
       </nav>
     </main>`;
     bind();
@@ -112,7 +112,9 @@
   const PANELS = {
     missions: { title: 'Missions', render: el => K.missions.render(el) },
     collection: { title: 'Collection', render: el => K.collection.renderGallery(el) },
-    shop: { title: 'Boutique', render: el => K.shop.render(el) }
+    shop: { title: 'Boutique', render: el => K.shop.render(el) },
+    rank: { title: 'Classement', render: el => K.rank.render(el) },
+    bonus: { title: 'Niveaux bonus', render: el => K.bonus.render(el) }
   };
   let panel = null;
   function setTab(name) { root.querySelectorAll('.tabbar [data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === name)); }
@@ -194,10 +196,10 @@
   let lastTap = 0, bubbleTimer;
   function heroTap() {
     const now = Date.now();
-    if (now - lastTap < 350) { lastTap = 0; if (K.assistant) K.assistant.open(); else helpSheet(); return; }
+    if (now - lastTap < 400) { lastTap = 0; if (K.assistant) K.assistant.open(); else helpSheet(); return; }
     lastTap = now;
     const b = root.querySelector('.bubble'), s = K.store.get();
-    const lines = [`Salut ${s.profile.pseudo} !`, 'On avance ensemble ?', 'Double-tape-moi si quelque chose ne va pas.', 'Une étape t’attend sur le sentier.'];
+    const lines = [`Salut ${s.profile.pseudo} !`, 'On avance ensemble ?', 'Double-tape-moi si quelque chose ne va pas.', 'Tu veux qu’on parle ? Double-tape-moi.', 'Une étape t’attend sur le sentier.'];
     b.textContent = lines[Math.floor(Math.random() * lines.length)]; b.hidden = false;
     clearTimeout(bubbleTimer); bubbleTimer = setTimeout(() => { b.hidden = true; }, 2600);
   }

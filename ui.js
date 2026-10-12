@@ -45,7 +45,7 @@
       <div class="reward-card">
         <div class="reward-heart">${logo(84)}</div>
         <h2>${esc(title)}</h2>
-        <div class="reward-amount">${icons.puls}<span>+${amount}</span> ${esc(cur)}</div>
+        ${amount ? `<div class="reward-amount">${icons.puls}<span>+${amount}</span> ${esc(cur)}</div>` : ''}
         ${extra ? `<p class="reward-extra">🎁 ${esc(extra)}</p>` : ''}${sub ? `<p>${esc(sub)}</p>` : ''}
         <button class="btn primary wide">Continuer</button>
       </div></div>`);

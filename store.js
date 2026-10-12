@@ -5,7 +5,7 @@
   const fresh = () => ({
     version: 1, profile: null, avatar: null, echeances: {}, checkins: {},
     wallet: { pulsations: 0 }, history: [], createdAt: new Date().toISOString(),
-    collection: {}, packs: [], daily: {}, stats: { quizCorrect: 0, packsOpened: 0 }, objClaimed: {}, redeemed: [], quizSeen: []
+    collection: {}, packs: [], daily: {}, stats: { quizCorrect: 0, packsOpened: 0 }, objClaimed: {}, redeemed: [], quizSeen: [], bonus: {}, friends: [], rank: null
   });
   let state = null;
 

@@ -45,6 +45,7 @@
         ${r.maps ? `<button class="btn ghost" data-a="near">📍 Autour de moi</button>` : ''}
         ${r.kind === 'rdv' ? `<button class="btn ghost" data-a="plan">📅 ${it.planned ? 'Modifier mon RDV' : 'J’ai pris rendez-vous'}</button>` : ''}
         <button class="btn primary" data-a="done">${r.kind === 'rdv' ? '✅ J’ai fait ce rendez-vous' : '✅ C’est fait'}</button>
+        <div class="row-btns even"><button class="btn ghost" data-a="remind">🔔 Rappel agenda</button><button class="btn ghost" data-a="invite">👥 Inviter un ami</button></div>
         <button class="btn text" data-a="snooze">Décaler de 2 semaines</button>
       </div>`);
     body.addEventListener('click', e => {
@@ -52,6 +53,8 @@
       if (a.dataset.a === 'near') nearMe(r);
       if (a.dataset.a === 'plan') planForm(r, it);
       if (a.dataset.a === 'done') proofForm(r, it);
+      if (a.dataset.a === 'invite') K.duo.invite(r.title.charAt(0).toLowerCase() + r.title.slice(1), it.planned);
+      if (a.dataset.a === 'remind') K.duo.reminder(it.planned ? r.title : 'Prendre rendez-vous : ' + r.title, it.planned || (it.due && it.due > D.today() ? it.due : D.addDays(D.today(), 3)), r.why);
       if (a.dataset.a === 'snooze') {
         K.store.update(st => { const rec = st.echeances[r.id] || (st.echeances[r.id] = {}); rec.snoozeUntil = D.iso(D.addDays(D.today(), 14)); });
         ui.close(); ui.toast('Étape décalée de 2 semaines.');
