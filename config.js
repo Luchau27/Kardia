@@ -2,7 +2,7 @@
 window.K = window.K || {};
 K.config = {
   appName: 'Kardia',
-  version: '1.4.0',
+  version: '1.4.1',
   cardsPath: 'cartes/',
   /* Dépôt GitHub (détecté tout seul sur github.io ; à remplir seulement en cas de besoin, ex. 'luchau27/Kardia'). */
   githubRepo: null,
