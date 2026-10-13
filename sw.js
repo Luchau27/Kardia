@@ -1,5 +1,5 @@
 /* Kardia – service worker. Changer VERSION à chaque mise à jour pour que les téléphones récupèrent les nouveaux fichiers. */
-const VERSION = 'kardia-1.7.0';
+const VERSION = 'kardia-1.7.1';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'style.css',
   'config.js', 'store.js', 'dates.js', 'rules.js', 'ui.js', 'avatar.js',

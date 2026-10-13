@@ -75,14 +75,14 @@
         </div>
         <div class="hud-right">
           <div class="wallet" aria-label="${K.config.currency.name}">${ui.icons.puls}<span data-wallet></span></div>
-          <button class="icon-btn shop" data-a="tab" data-tab="shop" aria-label="Boutique">${ui.icons.shop}</button>
+          <button class="icon-btn rank-btn" data-a="tab" data-tab="rank" aria-label="Classement">${ui.icons.rank}</button>
         </div>
       </header>
       <nav class="tabbar">
         <button data-a="tab" data-tab="missions">${ui.icons.missions}<span>Missions</span><i class="badge" data-badge="missions" hidden></i></button>
         <button data-a="tab" data-tab="collection">${ui.icons.cards}<span>Collection</span><i class="badge" data-badge="collection" hidden></i></button>
         <button class="tab-map" data-a="tab" data-tab="map" aria-label="Mon sentier"><span class="tab-map-circle">${ui.icons.map}</span><span>Sentier</span></button>
-        <button data-a="tab" data-tab="rank">${ui.icons.rank}<span>Classement</span></button>
+        <button data-a="tab" data-tab="shop">${ui.icons.shop}<span>Boutique</span></button>
         <button data-a="tab" data-tab="bonus">${ui.icons.bonus}<span>Bonus</span></button>
       </nav>
     </main>`;
