@@ -2,8 +2,12 @@
 window.K = window.K || {};
 K.config = {
   appName: 'Kardia',
-  version: '1.3.0',
+  version: '1.4.0',
   cardsPath: 'cartes/',
+  /* Dépôt GitHub (détecté tout seul sur github.io ; à remplir seulement en cas de besoin, ex. 'luchau27/Kardia'). */
+  githubRepo: null,
+  /* Textes du dos des cartes (l'anecdote de chaque carte est dans cards.js, champ « fact »). */
+  back: { top: 'Le corps en collection', know: 'Le saviez-vous ?', logo: 'Kardia' },
   /* Hauteur du chemin dans l'image visuels/decor.png (0.18 = 18 % depuis le bas de l'écran). */
   decorGround: 0.18,
   currency: { name: 'Pulsations', one: 'Pulsation' },

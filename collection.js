@@ -61,8 +61,22 @@
 
   /* ---------- Affichage d'une carte ---------- */
   function fileOf(c, v) { return K.config.cardsPath + c.file + (v === 'f' ? '-fullart' : v === 'l' ? '-limitee' : '') + '.png'; }
+  /* Image de carte déposée dans le dépôt (une par rareté, plus Full Art / édition limitée). */
+  function artFor(c, r, v) {
+    if (!K.vis || !K.vis.cardImg) return null;
+    if (v === 'f' || v === 'l') { const x = K.vis.cardImg(c.id, v); if (x) return x; }
+    return K.vis.cardImg(c.id, r) || K.vis.cardImg(c.id, 'C');
+  }
   function cardHTML(x, o = {}) {
-    const c = byId[x.id];
+    const c = byId[x.id], art = artFor(c, x.r, x.v);
+    if (art) {
+      return `<div class="kcard full r-${RCLS[x.r]} v-${x.v} cat-${c.cat} ${o.cls || ''}" data-id="${c.id}" data-key="${key(x.id, x.r, x.v)}">
+        <img class="kc-full" loading="lazy" alt="${ui.esc(c.name)} ${RNAME[x.r]}" src="${art}">
+        ${x.v === 'l' ? `<div class="kc-ribbon">${ui.esc(c.ev)}</div>` : ''}
+        <span class="kc-tag">${RNAME[x.r]}${x.v === 'h' ? ' · Holo' : x.v === 'f' ? ' · Full Art' : ''}</span>
+        ${o.count > 1 ? `<span class="kc-count">×${o.count}</span>` : ''}${o.isNew ? '<span class="kc-new">Nouveau</span>' : ''}
+      </div>`;
+    }
     return `<div class="kcard r-${RCLS[x.r]} v-${x.v} cat-${c.cat} ${o.cls || ''}" data-id="${c.id}" data-key="${key(x.id, x.r, x.v)}">
       <div class="kc-art"><div class="kc-ph"><span>${c.emo}</span></div><img loading="lazy" alt="" src="${fileOf(c, x.v)}" onerror="this.remove()"></div>
       ${x.v === 'l' ? `<div class="kc-ribbon">${ui.esc(c.ev)}</div>` : ''}
@@ -80,7 +94,21 @@
     if (K.vis && K.vis.has('pack-' + type)) return `<span class="pack-v img ${size || ''} t-${type}"><img alt="${ui.esc(P.name)}" src="${K.vis.url('pack-' + type)}">${cat ? `<small class="pack-cat">${ui.esc(catById[cat].name)}</small>` : ''}</span>`;
     return `<span class="pack-v ${size || ''} t-${type}">${ui.logo(size === 'tiny' ? 14 : size === 'big' ? 64 : 30)}<b>${ui.esc(P.name.replace('Pack ', ''))}</b>${cat ? `<small class="pack-cat">${ui.esc(catById[cat].name)}</small>` : ''}</span>`;
   }
-  function backFace() { return K.vis && K.vis.has('verso') ? `<img class="verso" alt="" src="${K.vis.url('verso')}">` : ui.logo(44); }
+  function backFace() { return K.vis && K.vis.has('verso') ? `<img class="verso" alt="" src="${K.vis.url('verso')}">` : backHTML(null); }
+
+  /* Dos de carte dessiné par l'appli : les textes viennent de cards.js et de config.js, donc faciles à modifier. */
+  function backHTML(c) {
+    const B = K.config.back || {};
+    const pulse = '<svg class="kb-pulse" viewBox="0 0 120 20" aria-hidden="true"><path d="M0 10h42l5-5 6 5 4 9 5-17 4 13 3-5h51" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+    return `<div class="kback ${c ? '' : 'down'}">
+      <div class="kb-rays"></div><div class="kb-frame"></div>
+      <p class="kb-top">${ui.esc(B.top || '')}</p>
+      <div class="kb-medal"><i class="kb-ring r1"></i><i class="kb-ring r2"></i><i class="kb-ring r3"></i>
+        <div class="kb-core"><b>${ui.esc(B.logo || 'Kardia')}</b>${pulse}</div></div>
+      ${c ? `<p class="kb-know">${ui.esc(B.know || '')}</p><p class="kb-fact">${ui.esc(c.fact)}</p>
+      <div class="kb-foot"><span>${c.id.toUpperCase()}</span><span>${ui.esc(c.name)}</span></div>` : ''}
+    </div>`;
+  }
 
   /* ---------- Ouverture d'un pack ---------- */
   function openPack(index = 0) {
@@ -166,7 +194,7 @@
     const craftable = c.r.split('').filter(r => !vs.some(v => v.r === r));
     const body = ui.sheet(`
       <div class="detail-card">${b ? `<button class="flipper" aria-label="Retourner la carte"><span class="flip-in"><span class="flip-front">${cardHTML(b, { cls: 'big' })}</span>
-        <span class="flip-back fact cat-${c.cat}"><img class="back-img" alt="" src="${K.config.cardsPath}${c.file}-dos.png" onload="K.collection.backLoaded(this)" onerror="K.collection.backFailed(this)"><span class="fact-txt"><b>${ui.esc(c.name)}</b><p>${ui.esc(c.fact)}</p><small>${ui.esc(catById[c.cat].name)}</small></span></span></span></button>` : missingHTML(c).replace('kcard missing', 'kcard missing big')}</div>
+        <span class="flip-back">${K.vis && K.vis.cardImg(c.id, 'dos') ? `<img class="back-img" alt="" src="${K.vis.cardImg(c.id, 'dos')}">` : backHTML(c)}</span></span></button>` : missingHTML(c).replace('kcard missing', 'kcard missing big')}</div>
       ${b ? '<p class="muted center">Touche la carte pour lire son anecdote.</p>' : `<p class="center">${ui.esc(c.fact)}</p>`}
       <p class="muted center">Existe en ${c.r.split('').map(r => RNAME[r]).join(', ')}${c.holo ? ', Holo' : ''}${c.fa ? ', Full Art' : ''}${c.ev ? `, et en édition limitée (${ui.esc(c.ev)})` : ''}.</p>
       ${vs.length ? `<h3 class="q">Tes exemplaires</h3><div class="versions">${vs.map(v => `<span class="ver r-${RCLS[v.r]}">${RNAME[v.r]}${v.v !== 'n' ? ' ' + VNAME[v.v] : ''} <b>×${v.n}</b></span>`).join('')}</div>` : ''}
@@ -214,5 +242,5 @@
     img.remove();
   }
 
-  K.collection = { backLoaded, backFailed, packVisual, RAR, RNAME, RCLS, byId, catById, key, parse, ownedIds, versions, score, catCount, catTotal, anyCatComplete, draw, grantPack, addCards, openPack, cardHTML, renderGallery, detail };
+  K.collection = { backHTML, packVisual, RAR, RNAME, RCLS, byId, catById, key, parse, ownedIds, versions, score, catCount, catTotal, anyCatComplete, draw, grantPack, addCards, openPack, cardHTML, renderGallery, detail };
 })();

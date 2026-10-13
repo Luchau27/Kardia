@@ -11,6 +11,7 @@
         <button data-s="avatar">Changer de héros</button>
         <button data-s="export">Sauvegarder mes données</button>
         <label>Restaurer une sauvegarde<input type="file" accept="application/json,.json" hidden data-import></label>
+        <button data-s="images">Actualiser les images du dépôt</button>
         <button data-s="install">Installer Kardia sur l’écran d’accueil</button>
         <button data-s="reset" class="danger-txt">Tout effacer</button>
       </div>
@@ -27,6 +28,7 @@
         ui.toast('Sauvegarde téléchargée (sans les photos de preuve).');
       }
       if (a === 'install') installHelp();
+      if (a === 'images') { ui.toast('Recherche des nouvelles images…'); const ch = await K.vis.check(true); ui.close(); K.world.render(); ui.toast(ch ? 'Nouvelles images chargées.' : 'Aucune nouvelle image trouvée.'); }
       if (a === 'reset') {
         if (await ui.confirmBox('Effacer toutes tes données Kardia sur ce téléphone ?', 'Tout effacer')) { K.store.reset(); location.reload(); }
       }
