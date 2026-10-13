@@ -13,8 +13,15 @@
           <small class="odds">Commune ${pct(P.odds.C)} · Rare ${pct(P.odds.R)} · Épique ${pct(P.odds['É'])} · Légendaire ${pct(P.odds.L)}</small>
           <button class="btn ${ok ? 'primary' : 'ghost'} sm" data-buy="${t}" ${ok ? '' : 'disabled'}>${ui.icons.puls} ${P.price}</button></div></div>`;
       }).join('')}</div>
-      <p class="muted small-note">Le Pack Boss ne s’achète pas : il se gagne en franchissant les étapes du sentier.</p>`;
-    el.onclick = e => { const b = e.target.closest('[data-buy]'); if (b && !b.disabled) buy(b.dataset.buy); };
+      <p class="muted small-note">Le Pack Boss ne s’achète pas : il se gagne en franchissant les étapes du sentier.</p>
+      <div class="sec-head"><h3 class="sec">Ton héros</h3></div>
+      <div class="shop-item">${K.avatar.svg(K.store.get().avatar, { cls: 'shop-hero' })}<div class="shop-txt"><b>Héros et couleurs</b>
+        <small>Débloque le Neurone (${K.avatar.heroPrice('neurone')}) et la Cellule NK (${K.avatar.heroPrice('cellule-nk')}), et de nouvelles couleurs pour chaque héros.</small>
+        <button class="btn primary sm" data-hero>Personnaliser</button></div></div>`;
+    el.onclick = e => {
+      if (e.target.closest('[data-hero]')) return K.onboarding.start({ edit: true, only: 'avatar' });
+      const b = e.target.closest('[data-buy]'); if (b && !b.disabled) buy(b.dataset.buy);
+    };
   }
   function buy(type, cat) {
     const P = K.config.packs[type];

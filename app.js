@@ -3,6 +3,8 @@
   function boot() {
     const s = K.store.load();
     if (!s.profile || !s.avatar) { K.onboarding.start(); return; }
+    K.collection.ensureGift();
+    K.avatar.keepCurrent();
     K.world.render();
     if (!K.checkin.doneToday()) setTimeout(() => { if (!document.querySelector('.sheet-wrap.open')) K.checkin.open(); }, 900);
   }

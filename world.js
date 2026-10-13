@@ -88,6 +88,7 @@
     </main>`;
     bind();
     refresh();
+    startPowers();
     if (mode === 'map') openMap(true);
     else if (panel) openPanel(panel);
   }
@@ -195,6 +196,20 @@
     });
     const up = e => { if (!pts.has(e.pointerId)) return; pts.delete(e.pointerId); if (start && pts.size < 2) { onEnd(ratio); start = 0; ratio = 1; } };
     ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => el.addEventListener(t, up));
+  }
+
+  /* ---------- Héros : son pouvoir toutes les 10 secondes ---------- */
+  let powerTimer;
+  function startPowers() {
+    clearInterval(powerTimer);
+    powerTimer = setInterval(() => {
+      if (document.hidden || mode !== 'scene' || panel) return;
+      const av = root && root.querySelector('.hero .avatar'); if (!av) return;
+      av.classList.remove('power'); void av.getBoundingClientRect(); av.classList.add('power');
+      const T = K.avatar.TYPES[av.dataset.type], b = root.querySelector('.bubble');
+      if (T && b && b.hidden) { b.textContent = T.power; b.hidden = false; clearTimeout(bubbleTimer); bubbleTimer = setTimeout(() => { b.hidden = true; }, 1600); }
+      setTimeout(() => av.classList.remove('power'), 1700);
+    }, 10000);
   }
 
   /* ---------- Héros : double-tape = assistant ---------- */

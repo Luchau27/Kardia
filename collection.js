@@ -52,6 +52,12 @@
     return out.sort((a, b) => RAR.indexOf(a.r) - RAR.indexOf(b.r));
   }
 
+  /* Cadeau unique : le Cœur dans ses 4 raretés, pour voir les cartes illustrées. */
+  function ensureGift() {
+    const s = K.store.get(); s.gifts = s.gifts || {};
+    if (s.gifts.coeur) return;
+    K.store.update(st => { st.gifts = Object.assign({}, st.gifts, { coeur: true }); st.packs.unshift({ type: 'cadeau', from: 'cadeau', at: K.dates.todayISO(), cards: [{ id: 'org-01', r: 'C', v: 'n' }, { id: 'org-01', r: 'R', v: 'n' }, { id: 'org-01', r: 'É', v: 'n' }, { id: 'org-01', r: 'L', v: 'h' }] }); });
+  }
   function grantPack(type, opts = {}) { K.store.update(s => { s.packs.push({ type, cat: opts.cat || null, from: opts.from || null, at: K.dates.todayISO() }); }); }
   function addCards(cards) {
     const before = ownedIds(), seen = new Set();
@@ -72,21 +78,22 @@
     if (art) {
       return `<div class="kcard full r-${RCLS[x.r]} v-${x.v} cat-${c.cat} ${o.cls || ''}" data-id="${c.id}" data-key="${key(x.id, x.r, x.v)}">
         <img class="kc-full" loading="lazy" alt="${ui.esc(c.name)} ${RNAME[x.r]}" src="${art}">
-        ${x.v === 'l' ? `<div class="kc-ribbon">${ui.esc(c.ev)}</div>` : ''}
         <span class="kc-tag">${RNAME[x.r]}${x.v === 'h' ? ' · Holo' : x.v === 'f' ? ' · Full Art' : ''}</span>
         ${o.count > 1 ? `<span class="kc-count">×${o.count}</span>` : ''}${o.isNew ? '<span class="kc-new">Nouveau</span>' : ''}
       </div>`;
     }
     return `<div class="kcard r-${RCLS[x.r]} v-${x.v} cat-${c.cat} ${o.cls || ''}" data-id="${c.id}" data-key="${key(x.id, x.r, x.v)}">
       <div class="kc-art"><div class="kc-ph"><span>${c.emo}</span></div><img loading="lazy" alt="" src="${fileOf(c, x.v)}" onerror="this.remove()"></div>
-      ${x.v === 'l' ? `<div class="kc-ribbon">${ui.esc(c.ev)}</div>` : ''}
       <div class="kc-band"><b>${ui.esc(c.name)}</b><span class="kc-rar">${RNAME[x.r]}${x.v !== 'n' && x.v !== 'l' ? ' · ' + VNAME[x.v] : ''}</span></div>
       ${o.count > 1 ? `<span class="kc-count">×${o.count}</span>` : ''}${o.isNew ? '<span class="kc-new">Nouveau</span>' : ''}
     </div>`;
   }
-  function missingHTML(c) {
-    return `<div class="kcard missing cat-${c.cat}" data-id="${c.id}"><div class="kc-art"><div class="kc-ph"><span>?</span></div></div><div class="kc-band"><b>${ui.esc(c.name)}</b><span class="kc-rar">À trouver</span></div></div>`;
+  function missingHTML(c, r) {
+    return `<div class="kcard missing cat-${c.cat} ${r ? 'r-' + RCLS[r] : ''}" data-id="${c.id}" ${r ? `data-r="${r}"` : ''}><div class="kc-art"><div class="kc-ph"><span>?</span></div></div><div class="kc-band"><b>${ui.esc(c.name)}</b><span class="kc-rar">${r ? RNAME[r] : 'À trouver'}</span></div></div>`;
   }
+  /* Un emplacement par carte et par rareté. */
+  const slots = cat => K.CARDS.filter(c => !cat || c.cat === cat).reduce((t, c) => t + c.r.length, 0);
+  function ownedSlots(cat) { const set = new Set(); const cl = col(); for (const k in cl) if (cl[k] > 0) { const p = parse(k); if (!cat || p.card.cat === cat) set.add(p.id + '|' + p.r); } return set.size; }
 
   /* ---------- Visuel d'un pack (image du dossier visuels, sinon dessin) ---------- */
   function packVisual(type, size, cat) {
@@ -101,7 +108,7 @@
     const B = K.config.back || {};
     const pulse = '<svg class="kb-pulse" viewBox="0 0 120 20" aria-hidden="true"><path d="M0 10h42l5-5 6 5 4 9 5-17 4 13 3-5h51" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
     return `<div class="kback ${c ? '' : 'down'}">
-      <div class="kb-rays"></div><div class="kb-frame"></div>
+      <div class="kb-rays"></div><div class="kb-edge"></div><div class="kb-frame"></div>
       <p class="kb-top">${ui.esc(B.top || '')}</p>
       <div class="kb-medal"><i class="kb-ring r1"></i><i class="kb-ring r2"></i><i class="kb-ring r3"></i>
         <div class="kb-core"><b>${ui.esc(B.logo || 'Kardia')}</b>${pulse}</div></div>
@@ -122,7 +129,7 @@
       </div></div>`);
     document.body.appendChild(ov);
     ov.querySelector('.foil').onclick = () => {
-      const cards = draw(pack.type, pack.cat);
+      const cards = pack.cards ? pack.cards.map(c => ({ ...c })) : draw(pack.type, pack.cat);
       K.store.update(st => { st.packs.splice(index, 1); st.stats.packsOpened = (st.stats.packsOpened || 0) + 1; });
       const res = addCards(cards);
       if (pack.type === 'gratuit' && K.missions) K.missions.mark('pack');
@@ -151,17 +158,16 @@
   let fCat = 'all', fRar = 'all', showMissing = true;
   function renderGallery(el) {
     const s = K.store.get(), owned = ownedIds(), packs = s.packs, dups = dupCount();
-    let list = K.CARDS.filter(c => fCat === 'all' || c.cat === fCat);
-    const items = list.map(c => {
-      const vs = versions(c.id).filter(v => fRar === 'all' || v.r === fRar);
-      if (!owned.has(c.id)) return showMissing && fRar === 'all' ? missingHTML(c) : '';
-      if (!vs.length) return '';
-      vs.sort((a, b) => (RAR.indexOf(b.r) - RAR.indexOf(a.r)) || ((b.v !== 'n') - (a.v !== 'n')));
+    const list = K.CARDS.filter(c => fCat === 'all' || c.cat === fCat);
+    const items = list.flatMap(c => c.r.split('').filter(r => fRar === 'all' || r === fRar).map(r => {
+      const vs = versions(c.id).filter(v => v.r === r);
+      if (!vs.length) return showMissing ? missingHTML(c, r) : '';
+      vs.sort((a, b) => (b.v !== 'n') - (a.v !== 'n'));
       return cardHTML(vs[0], { count: vs.reduce((t, v) => t + v.n, 0) });
-    }).join('');
+    })).join('');
     el.innerHTML = `
       <div class="col-top">
-        <div class="col-stat"><b>${owned.size}</b><span>/ ${K.CARDS.length} cartes</span></div>
+        <div class="col-stat"><b>${ownedSlots()}</b><span>/ ${slots()} cartes</span></div>
         <div class="col-stat"><b>${score().toLocaleString('fr-FR')}</b><span>score de collection</span></div>
       </div>
       ${packs.length ? `<div class="sec-head"><h3 class="sec">Packs à ouvrir</h3><span class="sec-meta">${packs.length}</span></div><div class="packs-row">${packs.map((p, i) => `<button class="pack-btn" data-pack="${i}">${packVisual(p.type, '', p.cat)}</button>`).join('')}</div>` : ''}
@@ -169,7 +175,7 @@
         <button class="chip" data-c="code">J’ai un code cadeau</button>
         ${dups ? `<button class="chip" data-c="recycle-all">Recycler ${dups} doublon${dups > 1 ? 's' : ''}</button>` : ''}
       </div>
-      <div class="chips" role="tablist">${[['all', 'Toutes', '']].concat(K.CATS.map(c => [c.code, c.name, ` ${catCount(c.code)}/${catTotal(c.code)}`])).map(([v, l, n]) => `<button class="chip ${fCat === v ? 'on' : ''}" data-fc="${v}">${l}<small>${n}</small></button>`).join('')}</div>
+      <div class="chips" role="tablist">${[['all', 'Toutes', '']].concat(K.CATS.map(c => [c.code, c.name, ` ${ownedSlots(c.code)}/${slots(c.code)}`])).map(([v, l, n]) => `<button class="chip ${fCat === v ? 'on' : ''}" data-fc="${v}">${l}<small>${n}</small></button>`).join('')}</div>
       <div class="chips">${[['all', 'Toutes raretés']].concat(RAR.map(r => [r, RNAME[r]])).map(([v, l]) => `<button class="chip small r-${RCLS[v] || 'all'} ${fRar === v ? 'on' : ''}" data-fr="${v}">${l}</button>`).join('')}
         <button class="chip small ${showMissing ? 'on' : ''}" data-fm>Manquantes</button></div>
       <div class="grid">${items || '<p class="muted empty">Aucune carte ici pour l’instant. Ouvre un pack pour commencer ta collection.</p>'}</div>`;
@@ -181,42 +187,41 @@
       if (t.hasAttribute('data-fm')) { showMissing = !showMissing; return renderGallery(el); }
       if (t.dataset.c === 'code') return K.trade.redeemForm();
       if (t.dataset.c === 'recycle-all') return recycleAll();
-      if (t.classList.contains('kcard')) return detail(t.dataset.id);
+      if (t.classList.contains('kcard')) return detail(t.dataset.id, t.dataset.r || (t.dataset.key || '').split('|')[1]);
     };
   }
 
   /* ---------- Fiche d'une carte ---------- */
-  function detail(id) {
-    const c = byId[id], vs = versions(id), b = best(id);
-    vs.sort((x, y) => (RAR.indexOf(y.r) - RAR.indexOf(x.r)));
-    const dup = vs.filter(v => v.n > 1);
+  function detail(id, r) {
+    const c = byId[id];
+    r = r || (best(id) || {}).r || c.r[0];
+    const vs = versions(id).filter(v => v.r === r).sort((a, b) => (b.v !== 'n') - (a.v !== 'n'));
+    const b = vs[0], dup = vs.filter(v => v.n > 1);
     const recycleGain = dup.reduce((t, v) => t + (v.n - 1) * K.config.recycle[v.r] * (v.v === 'n' ? 1 : 2), 0);
-    const craftable = c.r.split('').filter(r => !vs.some(v => v.r === r));
     const body = ui.sheet(`
-      <div class="detail-card">${b ? `<button class="flipper" aria-label="Retourner la carte"><span class="flip-in"><span class="flip-front">${cardHTML(b, { cls: 'big' })}</span>
-        <span class="flip-back">${K.vis && K.vis.cardImg(c.id, 'dos') ? `<img class="back-img" alt="" src="${K.vis.cardImg(c.id, 'dos')}">` : backHTML(c)}</span></span></button>` : missingHTML(c).replace('kcard missing', 'kcard missing big')}</div>
-      ${b ? '<p class="muted center">Touche la carte pour lire son anecdote.</p>' : `<p class="center">${ui.esc(c.fact)}</p>`}
-      <p class="muted center">Existe en ${c.r.split('').map(r => RNAME[r]).join(', ')}${c.holo ? ', Holo' : ''}${c.fa ? ', Full Art' : ''}${c.ev ? `, et en édition limitée (${ui.esc(c.ev)})` : ''}.</p>
-      ${vs.length ? `<h3 class="q">Tes exemplaires</h3><div class="versions">${vs.map(v => `<span class="ver r-${RCLS[v.r]}">${RNAME[v.r]}${v.v !== 'n' ? ' ' + VNAME[v.v] : ''} <b>×${v.n}</b></span>`).join('')}</div>` : ''}
+      <div class="detail-card">${b ? `<button class="flipper" aria-label="Retourner la carte"><span class="flip-in"><span class="flip-front">${cardHTML(b, { cls: 'big', count: vs.reduce((t, v) => t + v.n, 0) })}</span>
+        <span class="flip-back">${K.vis && K.vis.cardImg(c.id, 'dos') ? `<img class="back-img" alt="" src="${K.vis.cardImg(c.id, 'dos')}">` : backHTML(c)}</span></span></button>` : missingHTML(c, r).replace('kcard missing', 'kcard missing big')}</div>
+      ${b ? '<p class="muted center">Touche la carte pour lire son anecdote.</p>' : ''}
       <div class="actions">
         ${recycleGain ? `<button class="btn ghost" data-d="recycle">Recycler les doublons · +${recycleGain}</button>` : ''}
         ${dup.length ? `<button class="btn ghost" data-d="gift">Offrir un doublon à un ami</button>` : ''}
-        ${craftable.map(r => `<button class="btn ghost" data-craft="${r}">Fabriquer en ${RNAME[r]} · ${K.config.craft[r]} ${cur()}</button>`).join('')}
+        ${!b ? `<button class="btn primary" data-craft="${r}">Fabriquer · ${K.config.craft[r]} ${cur()}</button>` : ''}
       </div>`);
     body.onclick = e => {
       if (e.target.closest('.flipper')) { e.target.closest('.flipper').classList.toggle('on'); return; }
       const a = e.target.closest('[data-d], [data-craft]'); if (!a) return;
-      if (a.dataset.d === 'recycle') { recycle(id); detail(id); }
+      if (a.dataset.d === 'recycle') { recycle(id, r); detail(id, r); }
       if (a.dataset.d === 'gift') K.trade.giftForm(dup.map(v => key(v.id, v.r, v.v)));
       if (a.dataset.craft) craft(id, a.dataset.craft);
     };
   }
 
-  function recycle(id) {
+  function recycle(id, r) {
     let gain = 0;
     K.store.update(s => {
       Object.keys(s.collection).forEach(k => {
         if (id && !k.startsWith(id + '|')) return;
+        if (r && k.split('|')[1] !== r) return;
         const n = s.collection[k]; if (n > 1) { const p = parse(k); gain += (n - 1) * K.config.recycle[p.r] * (p.v === 'n' ? 1 : 2); s.collection[k] = 1; }
       });
       s.wallet.pulsations += gain;
@@ -242,5 +247,5 @@
     img.remove();
   }
 
-  K.collection = { backHTML, packVisual, RAR, RNAME, RCLS, byId, catById, key, parse, ownedIds, versions, score, catCount, catTotal, anyCatComplete, draw, grantPack, addCards, openPack, cardHTML, renderGallery, detail };
+  K.collection = { backHTML, packVisual, ensureGift, RAR, RNAME, RCLS, byId, catById, key, parse, ownedIds, versions, score, catCount, catTotal, anyCatComplete, draw, grantPack, addCards, openPack, cardHTML, renderGallery, detail };
 })();

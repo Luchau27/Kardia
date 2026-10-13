@@ -1,12 +1,38 @@
 /* Les héros de Kardia : des cellules du corps personnifiées, dessinées en vectoriel. */
 (function () {
   const TYPES = {
-    'globule-blanc': { name: 'Globule blanc', role: 'Le défenseur', colors: [['#F7F4FF', '#CFC6EE', '#4F7DFF'], ['#FFF6EA', '#E6D2B8', '#E8344E'], ['#EFFFF8', '#BFE5D6', '#16A88F']] },
-    'globule-rouge': { name: 'Globule rouge', role: 'Le livreur', colors: [['#F0435C', '#B01F37', '#FFC94A'], ['#FF6B5E', '#C23F35', '#6FE3FF'], ['#DD2F6B', '#9C1749', '#FFE27A']] },
-    'plaquette': { name: 'Plaquette', role: 'La réparatrice', colors: [['#FFC94A', '#D9931A', '#3D6BFF'], ['#FFD98C', '#E0A545', '#E8344E'], ['#B5EE6A', '#7CBD35', '#7C4DFF']] },
-    'neurone': { name: 'Neurone', role: 'Le stratège', colors: [['#9B7BFF', '#6646D6', '#7CF5FF'], ['#FF8AD6', '#CC4EA4', '#FFF07A'], ['#5CD2FF', '#2A95CC', '#FFB23F']] },
-    'cellule-nk': { name: 'Cellule NK', role: 'La ninja', colors: [['#343B63', '#1E2340', '#E8344E'], ['#40336A', '#261D44', '#30C9B4'], ['#1F4D4D', '#113232', '#FFB23F']] }
+    'globule-blanc': { name: 'Globule blanc', role: 'Le défenseur', power: 'Bouclier immunitaire !', colors: [['#F7F4FF', '#CFC6EE', '#4F7DFF'], ['#FFF6EA', '#E6D2B8', '#E8344E'], ['#EFFFF8', '#BFE5D6', '#16A88F'], ['#FDF0FF', '#E2C6F0', '#B05CFF'], ['#EAF6FF', '#BFD8EE', '#FF9F1C'], ['#3A3A48', '#22222C', '#E8344E']] },
+    'globule-rouge': { name: 'Globule rouge', role: 'Le livreur', power: 'Livraison express !', colors: [['#F0435C', '#B01F37', '#FFC94A'], ['#FF6B5E', '#C23F35', '#6FE3FF'], ['#DD2F6B', '#9C1749', '#FFE27A'], ['#FF9F43', '#C96A16', '#4F7DFF'], ['#8E5CFF', '#5E35C9', '#FFD166'], ['#2BC4A8', '#13836E', '#FF6B8A']] },
+    'plaquette': { name: 'Plaquette', role: 'La réparatrice', power: 'Réparation éclair !', colors: [['#FFC94A', '#D9931A', '#3D6BFF'], ['#FFD98C', '#E0A545', '#E8344E'], ['#B5EE6A', '#7CBD35', '#7C4DFF'], ['#FF8FB1', '#D35C82', '#2BC4A8'], ['#7FD3FF', '#3E9ACB', '#FFC94A'], ['#C9A7FF', '#8E6AD8', '#FF6B5E']] },
+    'neurone': { name: 'Neurone', role: 'Le stratège', power: 'Décharge électrique !', colors: [['#9B7BFF', '#6646D6', '#7CF5FF'], ['#FF8AD6', '#CC4EA4', '#FFF07A'], ['#5CD2FF', '#2A95CC', '#FFB23F'], ['#FFD166', '#D19A1C', '#9B7BFF'], ['#7AF0B4', '#2FB37A', '#FF5FA2'], ['#FF6B6B', '#C23B3B', '#7CF5FF']] },
+    'cellule-nk': { name: 'Cellule NK', role: 'La ninja', power: 'Attaque éclair !', colors: [['#343B63', '#1E2340', '#E8344E'], ['#40336A', '#261D44', '#30C9B4'], ['#1F4D4D', '#113232', '#FFB23F'], ['#5A1F2E', '#3A1220', '#FFC94A'], ['#2E2E2E', '#141414', '#7CF5FF'], ['#E7E2F0', '#B8B0C8', '#E8344E']] }
   };
+  /* Prix en Pulsations : 3 héros offerts, 2 à débloquer ; la première couleur est offerte. */
+  const PRICES = { hero: { 'neurone': 1500, 'cellule-nk': 2500 }, color: [0, 300, 300, 600, 600, 800] };
+  const unlocks = () => { const s = K.store.get(); s.unlocks = s.unlocks || { heroes: [], colors: {} }; s.unlocks.colors = s.unlocks.colors || {}; return s.unlocks; };
+  const heroPrice = t => PRICES.hero[t] || 0;
+  const colorPrice = i => PRICES.color[i] || 0;
+  const heroOwned = t => !heroPrice(t) || unlocks().heroes.includes(t);
+  const colorOwned = (t, i) => !colorPrice(i) || (unlocks().colors[t] || []).includes(i);
+  function buy(kind, t, i) {
+    const price = kind === 'hero' ? heroPrice(t) : colorPrice(i), s = K.store.get();
+    if (s.wallet.pulsations < price) { K.ui.toast(`Il te manque ${price - s.wallet.pulsations} ${K.config.currency.name}.`); return false; }
+    K.store.update(st => {
+      st.wallet.pulsations -= price; const u = st.unlocks = st.unlocks || { heroes: [], colors: {} }; u.colors = u.colors || {};
+      if (kind === 'hero') u.heroes.push(t); else (u.colors[t] = u.colors[t] || []).push(i);
+    });
+    return true;
+  }
+  /* Ce que le joueur utilise déjà reste à lui. */
+  function keepCurrent() {
+    const av = K.store.get().avatar; if (!av) return;
+    if (!heroOwned(av.type) || !colorOwned(av.type, av.color)) K.store.update(st => {
+      const u = st.unlocks = st.unlocks || { heroes: [], colors: {} }; u.colors = u.colors || {};
+      if (heroPrice(av.type) && !u.heroes.includes(av.type)) u.heroes.push(av.type);
+      if (colorPrice(av.color)) { const a = u.colors[av.type] = u.colors[av.type] || []; if (!a.includes(av.color)) a.push(av.color); }
+    });
+  }
+
   const ACCESSORIES = { none: 'Aucun', lunettes: 'Lunettes', casquette: 'Casquette', bandeau: 'Bandeau', ecouteurs: 'Écouteurs', couronne: 'Couronne' };
   const LOCKED_MSG = { couronne: 'Se débloque en complétant une catégorie de cartes' };
   const LOCKED = new Proxy(LOCKED_MSG, { get: (t, k) => (k === 'couronne' && K.collection && K.collection.anyCatComplete()) ? undefined : t[k] });
@@ -87,12 +113,9 @@
   function svg(av, opts = {}) {
     av = av || { type: 'globule-blanc', color: 0, acc: 'none' };
     const T = TYPES[av.type] || TYPES['globule-blanc'];
-    if (K.vis && K.vis.has('heros-' + av.type)) {
-      return `<span class="avatar avatar-img ${opts.walking ? 'walking' : ''} ${opts.cls || ''}" role="img" aria-label="${T.name}"><span class="shadow"></span><img alt="" src="${K.vis.url('heros-' + av.type)}"></span>`;
-    }
     const c = T.colors[av.color] || T.colors[0];
     const cls = ['avatar', opts.walking ? 'walking' : '', opts.cls || ''].join(' ');
-    return `<svg class="${cls}" viewBox="0 0 120 128" role="img" aria-label="${T.name}">
+    return `<svg class="${cls}" data-type="${av.type}" viewBox="0 0 120 128" role="img" aria-label="${T.name}">
       <ellipse cx="60" cy="122" rx="30" ry="5" fill="#000" opacity=".22" class="shadow"/>
       <g class="leg leg-l"><ellipse cx="47" cy="111" rx="8" ry="10" fill="${c[1]}"/></g>
       <g class="leg leg-r"><ellipse cx="73" cy="111" rx="8" ry="10" fill="${c[1]}"/></g>
@@ -100,5 +123,5 @@
     </svg>`;
   }
 
-  K.avatar = { TYPES, ACCESSORIES, LOCKED, svg, hasImage: t => !!(K.vis && K.vis.has('heros-' + t)) };
+  K.avatar = { TYPES, ACCESSORIES, LOCKED, svg, heroPrice, colorPrice, heroOwned, colorOwned, buy, keepCurrent };
 })();
