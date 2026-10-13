@@ -38,23 +38,26 @@
   }
   const tile = (svg, n = 3) => Array(n).fill(svg).join('');
 
+  const bossIcon = r => K.vis && K.vis.has('boss-' + r.id) ? `<img class="boss-img" alt="" src="${K.vis.url('boss-' + r.id)}">` : r.emoji;
+
   /* ---------- Rendu ---------- */
   let root, mode = 'scene';
   function render() {
     if (K.missions) K.missions.ensureFreePack();
-    const s = K.store.get(), dec = buildDecor();
+    const s = K.store.get(), dec = buildDecor(), hasDecor = K.vis && K.vis.has('decor');
     root = document.getElementById('app');
     root.innerHTML = `
-    <main class="game" data-mood="${K.checkin.mood()}">
+    <main class="game ${hasDecor ? 'has-decor' : ''}" data-mood="${K.checkin.mood()}" style="--ground:${(K.config.decorGround || .14) * 100}vh">
       <section class="scene" aria-label="Ton monde">
-        <div class="sky"></div><div class="sun"></div>
+        ${hasDecor ? `<div class="decor"><div class="decor-strip">${[0, 1, 2, 3].map(i => `<img alt="" class="${i % 2 ? 'mir' : ''}" src="${K.vis.url('decor')}">`).join('')}</div></div>` : `<div class="sky"></div><div class="sun"></div>
         <div class="layer far">${tile(dec.far)}</div>
         <div class="layer mid">${tile(dec.mid)}</div>
-        <div class="layer near">${tile(dec.near)}</div>
+        <div class="layer near">${tile(dec.near)}</div>`}
         <div class="rain" aria-hidden="true"></div>
         <button class="hero" aria-label="Ton héros. Double-tape pour lui parler.">${K.avatar.svg(s.avatar, { walking: true })}</button>
         <div class="bubble" hidden></div>
         <button class="teaser" hidden></button>
+        <button class="daily-pack" data-a="daily-pack" hidden aria-label="Ouvrir ton pack du jour"></button>
         <p class="pinch-hint">Pince l’écran pour voir ton sentier</p>
       </section>
       <section class="map" aria-label="Ton sentier" hidden>
@@ -94,12 +97,14 @@
     const s = K.store.get(), b = K.checkin.bars();
     root.querySelector('.game').dataset.mood = K.checkin.mood();
     root.querySelector('[data-wallet]').textContent = s.wallet.pulsations.toLocaleString('fr-FR');
-    root.querySelector('.stats').innerHTML = [['sleep', '🌙', 'Sommeil'], ['activity', '⚡', 'Activité'], ['heart', '❤️', 'Cœur']].map(([k, e, l]) =>
+    root.querySelector('.stats').innerHTML = [['sleep', ui.icons.moon, 'Sommeil'], ['activity', ui.icons.bolt, 'Activité'], ['heart', ui.icons.heart, 'Cœur']].map(([k, e, l]) =>
       `<span class="stat st-${k}" title="${l}"><i aria-hidden="true">${e}</i><span class="bar" role="meter" aria-label="${l}" aria-valuenow="${b[k]}" aria-valuemin="0" aria-valuemax="100"><b style="width:${b[k]}%"></b></span></span>`).join('');
+    const dp = root.querySelector('.daily-pack'), fi = K.missions ? K.missions.freePackIndex() : -1;
+    dp.hidden = fi < 0; if (fi >= 0 && !dp.innerHTML) dp.innerHTML = K.collection.packVisual('gratuit') + '<span class="dp-label">Pack du jour</span>';
     const next = K.rules.plan(s).upcoming[0], t = root.querySelector('.teaser');
     if (next) {
       t.hidden = false; t.dataset.id = next.rule.id; t.className = 'teaser st-' + next.status;
-      t.innerHTML = `<span class="t-emoji">${next.rule.emoji}</span><span><small>Prochaine étape</small><b>${ui.esc(next.rule.short)}</b><em>${ui.esc(next.label)}</em></span>`;
+      t.innerHTML = `<span class="t-emoji">${bossIcon(next.rule)}</span><span><small>Prochaine étape</small><b>${ui.esc(next.rule.short)}</b><em>${ui.esc(next.label)}</em></span>`;
     } else t.hidden = true;
     if (mode === 'map') renderMap();
     if (panel) renderPanel();
@@ -151,10 +156,10 @@
     items.forEach((it, i) => {
       const { x, y } = pts[i], pos = `style="left:${x}px;top:${y}px"`;
       if (it.t === 'me') html += `<div class="node me" ${pos}>${K.avatar.svg(s.avatar, { walking: true })}<span class="n-label"><b>${ui.esc(s.profile.pseudo)}</b></span></div>`;
-      else if (it.t === 'done') html += `<div class="node done" ${pos}><span class="n-circle"><span class="n-e">${it.rule.emoji}</span><i class="check">✓</i></span><span class="n-label"><b>${ui.esc(it.rule.short)}</b><em>Réussi le ${D.short(it.date)}</em></span></div>`;
+      else if (it.t === 'done') html += `<div class="node done" ${pos}><span class="n-circle"><span class="n-e">${bossIcon(it.rule)}</span><i class="check">${ui.icons.check}</i></span><span class="n-label"><b>${ui.esc(it.rule.short)}</b><em>Réussi le ${D.short(it.date)}</em></span></div>`;
       else if (it.t === 'end') html += `<div class="node end" ${pos}><span class="n-circle">…</span><span class="n-label"><em>La suite s’écrit avec toi</em></span></div>`;
       else html += `<button class="node up st-${it.status} ${it.i >= 4 ? 'fog' : ''} ${it.rule.type}" data-id="${it.rule.id}" ${pos}>
-          <span class="n-circle"><span class="n-e">${it.rule.emoji}</span></span>
+          <span class="n-circle"><span class="n-e">${bossIcon(it.rule)}</span></span>
           <span class="n-label"><b>${ui.esc(it.rule.short)}</b><em>${ui.esc(it.label)}</em></span></button>`;
     });
     track.innerHTML = html;
@@ -239,6 +244,7 @@
         }
         if (act === 'close-map') closeMap();
         if (act === 'checkin') K.checkin.open();
+        if (act === 'daily-pack') { const i = K.missions.freePackIndex(); if (i >= 0) K.collection.openPack(i); }
         if (act === 'settings') K.settings.open();
         if (act === 'soon') ui.toast(`${a.dataset.what} arrive avec la prochaine mise à jour.`);
         return;
@@ -251,5 +257,5 @@
   window.addEventListener('resize', () => { if (mode === 'map' && root) renderMap(); });
   document.addEventListener('gesturestart', e => e.preventDefault());
 
-  K.world = { render, refresh, openMap, closeMap, openPanel, closePanel };
+  K.world = { render, refresh, openMap, closeMap, openPanel, closePanel, bossIcon };
 })();

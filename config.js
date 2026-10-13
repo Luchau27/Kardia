@@ -2,8 +2,10 @@
 window.K = window.K || {};
 K.config = {
   appName: 'Kardia',
-  version: '1.2.0',
+  version: '1.3.0',
   cardsPath: 'cartes/',
+  /* Hauteur du chemin dans l'image visuels/decor.png (0.18 = 18 % depuis le bas de l'écran). */
+  decorGround: 0.18,
   currency: { name: 'Pulsations', one: 'Pulsation' },
   rewards: { rdv: 300, admin: 150, auto: 80, earlyBonus: 60 },
   packs: {

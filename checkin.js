@@ -1,9 +1,15 @@
 /* Météo intérieure du jour + sommeil + activité : alimentent les 3 barres et le ciel du monde. */
 (function () {
   const D = K.dates;
+  const W = d => `<svg class="wx" viewBox="0 0 32 32" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const SUN = '<circle cx="16" cy="16" r="5.5" fill="currentColor"/><path d="M16 3v4M16 25v4M3 16h4M25 16h4M6.8 6.8l2.8 2.8M22.4 22.4l2.8 2.8M6.8 25.2l2.8-2.8M22.4 9.6l2.8-2.8"/>';
+  const CLOUD = '<path d="M9 24h14a5 5 0 0 0 .5-10 7 7 0 0 0-13.4 1.6A4.3 4.3 0 0 0 9 24Z"/>';
   const MOODS = [
-    { v: 5, e: '☀️', l: 'Radieux' }, { v: 4, e: '🌤️', l: 'Bien' }, { v: 3, e: '⛅', l: 'Bof' },
-    { v: 2, e: '🌧️', l: 'Pas top' }, { v: 1, e: '⛈️', l: 'Difficile' }
+    { v: 5, e: W(SUN), l: 'Radieux' },
+    { v: 4, e: W('<circle cx="12" cy="11" r="4.5" fill="currentColor"/><path d="M12 2.5v2M4.5 11h-2M6.3 5.3l1.4 1.4M17.7 5.3l-1.4 1.4"/><path d="M12 27h11a4.5 4.5 0 0 0 .4-9 6 6 0 0 0-11.4 1.4A3.8 3.8 0 0 0 12 27Z" fill="var(--nuit-2)"/>'), l: 'Bien' },
+    { v: 3, e: W(CLOUD), l: 'Bof' },
+    { v: 2, e: W('<path d="M9 19h14a5 5 0 0 0 .5-10 7 7 0 0 0-13.4 1.6A4.3 4.3 0 0 0 9 19Z"/><path d="M11 23l-1.5 4M17 23l-1.5 4M23 23l-1.5 4"/>'), l: 'Pas top' },
+    { v: 1, e: W('<path d="M9 18h14a5 5 0 0 0 .5-10 7 7 0 0 0-13.4 1.6A4.3 4.3 0 0 0 9 18Z"/><path d="M17 20l-3.5 5h4l-3 5" stroke-width="2.4"/>'), l: 'Difficile' }
   ];
   const SLEEP = [{ v: 100, l: 'Très bien' }, { v: 75, l: 'Bien' }, { v: 50, l: 'Moyen' }, { v: 25, l: 'Mal' }];
   const ACT = [{ v: 100, l: 'Du sport' }, { v: 80, l: '30 min et +' }, { v: 50, l: 'Un peu' }, { v: 20, l: 'Pas du tout' }];

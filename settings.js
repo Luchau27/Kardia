@@ -7,12 +7,12 @@
       <h2 class="sheet-title">${ui.esc(s.profile.pseudo)}</h2>
       <p class="muted">Tes données restent uniquement sur ce téléphone. Pense à les sauvegarder de temps en temps.</p>
       <div class="menu">
-        <button data-s="profile">✏️ Modifier mon profil santé</button>
-        <button data-s="avatar">🦸 Changer de héros</button>
-        <button data-s="export">💾 Sauvegarder mes données</button>
-        <label>📂 Restaurer une sauvegarde<input type="file" accept="application/json,.json" hidden data-import></label>
-        <button data-s="install">📲 Installer Kardia sur l’écran d’accueil</button>
-        <button data-s="reset" class="danger-txt">🗑️ Tout effacer</button>
+        <button data-s="profile">Modifier mon profil santé</button>
+        <button data-s="avatar">Changer de héros</button>
+        <button data-s="export">Sauvegarder mes données</button>
+        <label>Restaurer une sauvegarde<input type="file" accept="application/json,.json" hidden data-import></label>
+        <button data-s="install">Installer Kardia sur l’écran d’accueil</button>
+        <button data-s="reset" class="danger-txt">Tout effacer</button>
       </div>
       <p class="version">Kardia ${K.config.version}</p>`);
     body.addEventListener('click', async e => {

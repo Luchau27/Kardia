@@ -32,20 +32,20 @@
     const reward = K.config.rewards[r.kind];
     const body = ui.sheet(`
       <div class="ech-head st-${it.status}">
-        <div class="ech-emoji">${r.emoji}</div>
+        <div class="ech-emoji">${K.world.bossIcon(r)}</div>
         <div><p class="ech-boss">${r.type === 'boss' ? 'Boss' : 'Allié'} · ${ui.esc(r.boss)}</p>
         <h2 class="sheet-title">${ui.esc(r.title)}</h2>
         <p class="ech-status"><span class="pill st-${it.status}">${statusTxt}</span> ${ui.esc(it.status === 'late' ? D.relative(it.due) : it.status === 'now' ? '' : it.label)}</p></div>
       </div>
       <p>${ui.esc(r.why)}</p>
-      <div class="money"><span>💶</span><p>${ui.esc(K.rules.money(r, s))}</p></div>
+      <div class="money"><span class="money-tag">Remboursement</span><p>${ui.esc(K.rules.money(r, s))}</p></div>
       <p class="reward-hint">${ui.icons.puls} Victoire : <b>+${reward}</b> ${K.config.currency.name} et <b>1 Pack Boss</b>${it.due && it.status !== 'late' ? ` · bonus de <b>+${K.config.rewards.earlyBonus}</b> si tu le fais en avance` : ''}</p>
       <div class="actions">
         ${r.doctolib ? `<a class="btn doctolib" href="${doctolibURL(r)}" target="_blank" rel="noopener">Chercher sur Doctolib</a>` : ''}
-        ${r.maps ? `<button class="btn ghost" data-a="near">📍 Autour de moi</button>` : ''}
-        ${r.kind === 'rdv' ? `<button class="btn ghost" data-a="plan">📅 ${it.planned ? 'Modifier mon RDV' : 'J’ai pris rendez-vous'}</button>` : ''}
-        <button class="btn primary" data-a="done">${r.kind === 'rdv' ? '✅ J’ai fait ce rendez-vous' : '✅ C’est fait'}</button>
-        <div class="row-btns even"><button class="btn ghost" data-a="remind">🔔 Rappel agenda</button><button class="btn ghost" data-a="invite">👥 Inviter un ami</button></div>
+        ${r.maps ? `<button class="btn ghost" data-a="near">Autour de moi</button>` : ''}
+        ${r.kind === 'rdv' ? `<button class="btn ghost" data-a="plan">${it.planned ? 'Modifier mon RDV' : 'J’ai pris rendez-vous'}</button>` : ''}
+        <button class="btn primary" data-a="done">${r.kind === 'rdv' ? 'J’ai fait ce rendez-vous' : 'C’est fait'}</button>
+        <div class="row-btns even"><button class="btn ghost" data-a="remind">Rappel agenda</button><button class="btn ghost" data-a="invite">Inviter un ami</button></div>
         <button class="btn text" data-a="snooze">Décaler de 2 semaines</button>
       </div>`);
     body.addEventListener('click', e => {
@@ -94,8 +94,8 @@
       <h2 class="sheet-title">${needProof ? 'Ajoute ta preuve' : 'Bravo !'}</h2>
       <p class="muted">${needProof ? 'Une photo de la facture, de l’ordonnance ou du compte-rendu suffit. Elle reste sur ton téléphone.' : 'Tu peux ajouter une photo si tu veux, ce n’est pas obligatoire.'}</p>
       <div class="proof-pick">
-        <label class="btn ghost">📸 Prendre une photo<input type="file" accept="image/*" capture="environment" hidden data-in></label>
-        <label class="btn ghost">📄 Choisir un fichier<input type="file" accept="image/*,application/pdf" hidden data-in></label>
+        <label class="btn ghost">Prendre une photo<input type="file" accept="image/*" capture="environment" hidden data-in></label>
+        <label class="btn ghost">Choisir un fichier<input type="file" accept="image/*,application/pdf" hidden data-in></label>
       </div>
       <div class="proof-preview" hidden></div>
       <label class="lbl">Date du rendez-vous<input class="field" type="date" name="d" max="${D.todayISO()}" value="${D.todayISO()}"></label>
@@ -104,7 +104,7 @@
     body.querySelectorAll('[data-in]').forEach(inp => inp.addEventListener('change', () => {
       file = inp.files[0]; if (!file) return;
       const pv = body.querySelector('.proof-preview'); pv.hidden = false;
-      pv.innerHTML = file.type.startsWith('image/') ? `<img alt="Aperçu de la preuve" src="${URL.createObjectURL(file)}">` : `<p>📄 ${ui.esc(file.name)}</p>`;
+      pv.innerHTML = file.type.startsWith('image/') ? `<img alt="Aperçu de la preuve" src="${URL.createObjectURL(file)}">` : `<p>Fichier : ${ui.esc(file.name)}</p>`;
       body.querySelector('[data-a=ok]').disabled = false;
     }));
     body.addEventListener('click', async e => {

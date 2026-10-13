@@ -82,7 +82,7 @@
     const uid = s.rank.uid;
     el.innerHTML = header + `<div class="chips">${tabs.map(([v, l]) => `<button class="chip ${tab === v ? 'on' : ''}" data-t="${v}">${l}</button>`).join('')}</div>
       <div class="ranking">${rows === undefined ? '<p class="muted center">Chargement…</p>' : rows === null ? '<p class="muted center">Connexion impossible. Vérifie ton réseau.</p>'
-        : rows.length ? rows.map((r, i) => `<div class="rk ${r.id === uid ? 'me' : ''}"><span class="rk-pos">${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</span><b>${ui.esc(r.pseudo)}</b><small>${ui.esc(r.region || '')}</small><span class="rk-score">${Number(r.score).toLocaleString('fr-FR')}</span></div>`).join('')
+        : rows.length ? rows.map((r, i) => `<div class="rk ${r.id === uid ? 'me' : ''}"><span class="rk-pos ${i < 3 ? 'p' + (i + 1) : ''}">${i + 1}</span><b>${ui.esc(r.pseudo)}</b><small>${ui.esc(r.region || '')}</small><span class="rk-score">${Number(r.score).toLocaleString('fr-FR')}</span></div>`).join('')
         : '<p class="muted center">Personne pour l’instant. Invite tes amis !</p>'}</div>
       ${tab === 'amis' ? `<div class="friend-box"><h3 class="q">Ton code ami</h3><p class="code-box">${ui.esc(uid || '…')}</p>
         <div class="row-btns"><button class="btn ghost" data-r="share">Partager</button><button class="btn primary" data-r="add">Ajouter un ami</button></div></div>` : ''}

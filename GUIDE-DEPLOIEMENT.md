@@ -17,7 +17,10 @@ Noms à respecter (tous en .png) :
 - Full Art : `org-01-coeur-fullart.png`
 - Édition limitée : `org-01-coeur-limitee.png`
 - Dos avec l'anecdote : `org-01-coeur-dos.png` (un seul par carte, quelle que soit la rareté)
-- Option : un dos commun sans texte nommé `dos.png`. L'appli écrit alors l'anecdote par-dessus pour les cartes qui n'ont pas leur propre dos.
+- Le verso commun (face cachée des cartes) se met dans le dossier **visuels** sous le nom `verso.png` : voir PROMPTS-GEMINI.md.
+
+## Visuels de l'appli (dossier « visuels »)
+Héros, décor, packs, verso et icônes bonus : voir PROMPTS-GEMINI.md pour les prompts et les noms exacts.
 
 ## Activer le classement en ligne (Firebase, gratuit, environ 15 minutes)
 1. Va sur https://console.firebase.google.com avec un compte Google → **Créer un projet** → nom `kardia` → désactive Google Analytics → **Créer**.

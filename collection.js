@@ -74,13 +74,22 @@
     return `<div class="kcard missing cat-${c.cat}" data-id="${c.id}"><div class="kc-art"><div class="kc-ph"><span>?</span></div></div><div class="kc-band"><b>${ui.esc(c.name)}</b><span class="kc-rar">À trouver</span></div></div>`;
   }
 
+  /* ---------- Visuel d'un pack (image du dossier visuels, sinon dessin) ---------- */
+  function packVisual(type, size, cat) {
+    const P = K.config.packs[type];
+    if (K.vis && K.vis.has('pack-' + type)) return `<span class="pack-v img ${size || ''} t-${type}"><img alt="${ui.esc(P.name)}" src="${K.vis.url('pack-' + type)}">${cat ? `<small class="pack-cat">${ui.esc(catById[cat].name)}</small>` : ''}</span>`;
+    return `<span class="pack-v ${size || ''} t-${type}">${ui.logo(size === 'tiny' ? 14 : size === 'big' ? 64 : 30)}<b>${ui.esc(P.name.replace('Pack ', ''))}</b>${cat ? `<small class="pack-cat">${ui.esc(catById[cat].name)}</small>` : ''}</span>`;
+  }
+  function backFace() { return K.vis && K.vis.has('verso') ? `<img class="verso" alt="" src="${K.vis.url('verso')}">` : ui.logo(44); }
+
   /* ---------- Ouverture d'un pack ---------- */
   function openPack(index = 0) {
     const s = K.store.get(), pack = s.packs[index]; if (!pack) return;
     const P = K.config.packs[pack.type];
     const ov = ui.h(`<div class="opening" role="dialog" aria-modal="true">
       <div class="op-stage">
-        <button class="foil t-${pack.type}" aria-label="Ouvrir le pack">${ui.logo(70)}<b>${ui.esc(P.name)}</b>${pack.cat ? `<small>${ui.esc(catById[pack.cat].name)}</small>` : ''}</button>
+        <button class="foil" aria-label="Ouvrir le ${ui.esc(P.name)}">${packVisual(pack.type, 'big', pack.cat)}</button>
+        <p class="op-name">${ui.esc(P.name)}</p>
         <p class="op-hint">Touche le pack pour l’ouvrir</p>
       </div></div>`);
     document.body.appendChild(ov);
@@ -98,7 +107,7 @@
     ov.querySelector('.op-stage').innerHTML = `
       <p class="op-hint">Touche chaque carte pour la retourner</p>
       <div class="op-cards">${res.map((x, i) => `<button class="flip r-${RCLS[x.r]}" style="--d:${i * 90}ms" aria-label="Retourner la carte ${i + 1}">
-        <span class="flip-in"><span class="flip-back">${ui.logo(44)}</span><span class="flip-front">${cardHTML(x, { isNew: x.isNew })}</span></span></button>`).join('')}</div>
+        <span class="flip-in"><span class="flip-back">${backFace()}</span><span class="flip-front">${cardHTML(x, { isNew: x.isNew })}</span></span></button>`).join('')}</div>
       <div class="op-actions"><button class="btn ghost" data-op="all">Tout retourner</button>
       <button class="btn primary" data-op="done">${left ? `Pack suivant (${left})` : 'Continuer'}</button></div>`;
     ov.onclick = e => {
@@ -127,10 +136,10 @@
         <div class="col-stat"><b>${owned.size}</b><span>/ ${K.CARDS.length} cartes</span></div>
         <div class="col-stat"><b>${score().toLocaleString('fr-FR')}</b><span>score de collection</span></div>
       </div>
-      ${packs.length ? `<div class="packs-row">${packs.map((p, i) => `<button class="mini-pack t-${p.type}" data-pack="${i}"><b>${ui.esc(K.config.packs[p.type].name)}</b>${p.cat ? `<small>${ui.esc(catById[p.cat].name)}</small>` : '<small>À ouvrir</small>'}</button>`).join('')}</div>` : ''}
+      ${packs.length ? `<div class="sec-head"><h3 class="sec">Packs à ouvrir</h3><span class="sec-meta">${packs.length}</span></div><div class="packs-row">${packs.map((p, i) => `<button class="pack-btn" data-pack="${i}">${packVisual(p.type, '', p.cat)}</button>`).join('')}</div>` : ''}
       <div class="col-tools">
-        <button class="chip" data-c="code">🎁 J’ai un code</button>
-        ${dups ? `<button class="chip" data-c="recycle-all">♻️ Recycler ${dups} doublon${dups > 1 ? 's' : ''}</button>` : ''}
+        <button class="chip" data-c="code">J’ai un code cadeau</button>
+        ${dups ? `<button class="chip" data-c="recycle-all">Recycler ${dups} doublon${dups > 1 ? 's' : ''}</button>` : ''}
       </div>
       <div class="chips" role="tablist">${[['all', 'Toutes', '']].concat(K.CATS.map(c => [c.code, c.name, ` ${catCount(c.code)}/${catTotal(c.code)}`])).map(([v, l, n]) => `<button class="chip ${fCat === v ? 'on' : ''}" data-fc="${v}">${l}<small>${n}</small></button>`).join('')}</div>
       <div class="chips">${[['all', 'Toutes raretés']].concat(RAR.map(r => [r, RNAME[r]])).map(([v, l]) => `<button class="chip small r-${RCLS[v] || 'all'} ${fRar === v ? 'on' : ''}" data-fr="${v}">${l}</button>`).join('')}
@@ -162,9 +171,9 @@
       <p class="muted center">Existe en ${c.r.split('').map(r => RNAME[r]).join(', ')}${c.holo ? ', Holo' : ''}${c.fa ? ', Full Art' : ''}${c.ev ? `, et en édition limitée (${ui.esc(c.ev)})` : ''}.</p>
       ${vs.length ? `<h3 class="q">Tes exemplaires</h3><div class="versions">${vs.map(v => `<span class="ver r-${RCLS[v.r]}">${RNAME[v.r]}${v.v !== 'n' ? ' ' + VNAME[v.v] : ''} <b>×${v.n}</b></span>`).join('')}</div>` : ''}
       <div class="actions">
-        ${recycleGain ? `<button class="btn ghost" data-d="recycle">♻️ Recycler les doublons (+${recycleGain} ${cur()})</button>` : ''}
-        ${dup.length ? `<button class="btn ghost" data-d="gift">🎁 Offrir un doublon à un ami</button>` : ''}
-        ${craftable.map(r => `<button class="btn ghost" data-craft="${r}">🛠️ Fabriquer en ${RNAME[r]} · ${K.config.craft[r]} ${cur()}</button>`).join('')}
+        ${recycleGain ? `<button class="btn ghost" data-d="recycle">Recycler les doublons · +${recycleGain}</button>` : ''}
+        ${dup.length ? `<button class="btn ghost" data-d="gift">Offrir un doublon à un ami</button>` : ''}
+        ${craftable.map(r => `<button class="btn ghost" data-craft="${r}">Fabriquer en ${RNAME[r]} · ${K.config.craft[r]} ${cur()}</button>`).join('')}
       </div>`);
     body.onclick = e => {
       if (e.target.closest('.flipper')) { e.target.closest('.flipper').classList.toggle('on'); return; }
@@ -201,9 +210,9 @@
      sinon dos commun (dos.png) avec l'anecdote écrite par-dessus, sinon texte seul. */
   function backLoaded(img) { img.parentNode.classList.add(img.dataset.generic ? 'img-bg' : 'img-full'); }
   function backFailed(img) {
-    if (!img.dataset.generic) { img.dataset.generic = '1'; img.src = K.config.cardsPath + 'dos.png'; return; }
+    if (!img.dataset.generic && K.vis && K.vis.has('verso')) { img.dataset.generic = '1'; img.src = K.vis.url('verso'); return; }
     img.remove();
   }
 
-  K.collection = { backLoaded, backFailed, RAR, RNAME, RCLS, byId, catById, key, parse, ownedIds, versions, score, catCount, catTotal, anyCatComplete, draw, grantPack, addCards, openPack, cardHTML, renderGallery, detail };
+  K.collection = { backLoaded, backFailed, packVisual, RAR, RNAME, RCLS, byId, catById, key, parse, ownedIds, versions, score, catCount, catTotal, anyCatComplete, draw, grantPack, addCards, openPack, cardHTML, renderGallery, detail };
 })();

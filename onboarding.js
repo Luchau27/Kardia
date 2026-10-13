@@ -86,11 +86,11 @@
   function avatarStep() {
     const av = d.avatar, T = K.avatar.TYPES[av.type];
     return `<div class="av-stage">${K.avatar.svg(av, { walking: true })}<p class="av-name"><b>${T.name}</b> ${T.role}</p></div>
-      <div class="av-types">${Object.entries(K.avatar.TYPES).map(([k, t]) => `<button type="button" data-ob-type="${k}" class="${k === av.type ? 'on' : ''}" aria-label="${t.name}">${K.avatar.svg({ type: k, color: 0, acc: 'none' })}</button>`).join('')}</div>
-      <h3 class="q">Couleurs</h3>
+      <div class="av-types">${Object.entries(K.avatar.TYPES).map(([k, t]) => `<button type="button" data-ob-type="${k}" class="${k === av.type ? 'on' : ''}" aria-label="${t.name}">${K.avatar.svg({ type: k, color: 0, acc: 'none' })}<small>${t.name}</small></button>`).join('')}</div>
+      ${K.avatar.hasImage(av.type) ? '' : `<h3 class="q">Couleurs</h3>
       <div class="av-colors">${T.colors.map((c, i) => `<button type="button" data-ob-color="${i}" class="${i === av.color ? 'on' : ''}" style="--c1:${c[0]};--c2:${c[2]}" aria-label="Couleur ${i + 1}"></button>`).join('')}</div>
       <h3 class="q">Accessoire</h3>
-      <div class="seg wrap">${Object.entries(K.avatar.ACCESSORIES).map(([k, l]) => `<button type="button" data-ob-acc="${k}" class="${k === av.acc ? 'on' : ''} ${K.avatar.LOCKED[k] ? 'locked' : ''}">${K.avatar.LOCKED[k] ? '🔒 ' : ''}${l}</button>`).join('')}</div>`;
+      <div class="seg wrap">${Object.entries(K.avatar.ACCESSORIES).map(([k, l]) => `<button type="button" data-ob-acc="${k}" class="${k === av.acc ? 'on' : ''} ${K.avatar.LOCKED[k] ? 'locked' : ''}">${K.avatar.LOCKED[k] ? '<span class="lock" aria-hidden="true"></span>' : ''}${l}</button>`).join('')}</div>`}`;
   }
 
   function start(o = {}) {

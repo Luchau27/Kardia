@@ -87,6 +87,9 @@
   function svg(av, opts = {}) {
     av = av || { type: 'globule-blanc', color: 0, acc: 'none' };
     const T = TYPES[av.type] || TYPES['globule-blanc'];
+    if (K.vis && K.vis.has('heros-' + av.type)) {
+      return `<span class="avatar avatar-img ${opts.walking ? 'walking' : ''} ${opts.cls || ''}" role="img" aria-label="${T.name}"><span class="shadow"></span><img alt="" src="${K.vis.url('heros-' + av.type)}"></span>`;
+    }
     const c = T.colors[av.color] || T.colors[0];
     const cls = ['avatar', opts.walking ? 'walking' : '', opts.cls || ''].join(' ');
     return `<svg class="${cls}" viewBox="0 0 120 128" role="img" aria-label="${T.name}">
@@ -97,5 +100,5 @@
     </svg>`;
   }
 
-  K.avatar = { TYPES, ACCESSORIES, LOCKED, svg };
+  K.avatar = { TYPES, ACCESSORIES, LOCKED, svg, hasImage: t => !!(K.vis && K.vis.has('heros-' + t)) };
 })();
