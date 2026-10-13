@@ -959,3 +959,22 @@ html, body { background: var(--nuit); }
 .med-btn svg { width: 18px; height: 18px; color: var(--lagune); flex: none; }
 .world.paused { opacity: .6; }
 .world.paused small { color: #FF9AAC; }
+
+/* Prochaine étape : en haut à gauche, sous les barres, pour laisser voir le héros */
+.teaser { top: calc(var(--safe-t) + 96px); bottom: auto; left: 14px; right: auto; max-width: min(62vw, 300px); animation: none; }
+.game.has-decor .teaser { bottom: auto; }
+
+/* Fenêtres du bas : bouton fermer et poignée plus grande */
+.sheet-x { position: absolute; top: 12px; right: 12px; z-index: 2; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .08); color: var(--os); }
+.sheet-x svg { width: 18px; height: 18px; }
+.sheet-grip { margin: 6px auto 18px; width: 48px; height: 6px; }
+.sheet { touch-action: pan-y; overscroll-behavior: contain; }
+
+/* Collection : léger pour le téléphone */
+.grid .kcard { content-visibility: auto; contain-intrinsic-size: auto 160px; }
+.grid .kcard.v-h::after, .grid .kcard.v-f::after, .op-cards .kcard.v-h::after { mix-blend-mode: normal; opacity: .22; animation: none; background-position: 50% 50%; }
+.grid .kcard.r-l:not(.full) { animation: none; }
+.kcard.missing { animation: none !important; box-shadow: none !important; }
+.kc-full:not([src]) { visibility: hidden; }
+.kcard.full { background: var(--panel-2) !important; }
+.grid .more { grid-column: 1 / -1; margin-top: 6px; }

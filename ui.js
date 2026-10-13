@@ -45,12 +45,30 @@
 
   function sheet(html, opts = {}) {
     const root = $('#sheet-root'); root.innerHTML = '';
-    const wrap = h(`<div class="sheet-wrap"><div class="sheet-backdrop"></div><div class="sheet ${opts.cls || ''}" role="dialog" aria-modal="true"><div class="sheet-grip"></div><div class="sheet-body">${html}</div></div></div>`);
+    const wrap = h(`<div class="sheet-wrap"><div class="sheet-backdrop"></div><div class="sheet ${opts.cls || ''}" role="dialog" aria-modal="true"><div class="sheet-grip"></div>${opts.locked ? '' : '<button class="sheet-x" aria-label="Fermer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>'}<div class="sheet-body">${html}</div></div></div>`);
     root.appendChild(wrap);
     requestAnimationFrame(() => requestAnimationFrame(() => wrap.classList.add('open')));
-    if (!opts.locked) wrap.querySelector('.sheet-backdrop').addEventListener('click', close);
+    if (!opts.locked) {
+      wrap.querySelector('.sheet-backdrop').addEventListener('click', close);
+      wrap.querySelector('.sheet-x').addEventListener('click', close);
+      swipeToClose(wrap.querySelector('.sheet'));
+    }
     return wrap.querySelector('.sheet-body');
   }
+  /* Glisser la fenêtre vers le bas pour la fermer (quand elle est tout en haut de son contenu). */
+  function swipeToClose(sh) {
+    let y0 = null, dy = 0;
+    sh.addEventListener('touchstart', e => { if (sh.scrollTop <= 0) { y0 = e.touches[0].clientY; dy = 0; sh.style.transition = 'none'; } else y0 = null; }, { passive: true });
+    sh.addEventListener('touchmove', e => {
+      if (y0 === null) return; dy = e.touches[0].clientY - y0;
+      if (dy > 0 && sh.scrollTop <= 0) { e.preventDefault(); sh.style.transform = `translateY(${dy}px)`; } else if (dy < 0) { y0 = null; sh.style.transform = ''; sh.style.transition = ''; }
+    }, { passive: false });
+    sh.addEventListener('touchend', () => {
+      if (y0 === null) return; y0 = null; sh.style.transition = '';
+      if (dy > 90) { sh.style.transform = ''; close(); } else sh.style.transform = '';
+    });
+  }
+
   function close() {
     const w = $('#sheet-root .sheet-wrap.open'); if (!w) return;
     w.classList.remove('open'); setTimeout(() => w.remove(), 260);

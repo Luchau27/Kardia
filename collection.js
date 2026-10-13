@@ -77,7 +77,7 @@
     const c = byId[x.id], art = artFor(c, x.r, x.v);
     if (art) {
       return `<div class="kcard full r-${RCLS[x.r]} v-${x.v} cat-${c.cat} ${o.cls || ''}" data-id="${c.id}" data-key="${key(x.id, x.r, x.v)}">
-        <img class="kc-full" loading="lazy" alt="${ui.esc(c.name)} ${RNAME[x.r]}" src="${art}">
+        ${o.cls && o.cls.includes('big') ? `<img class="kc-full" alt="${ui.esc(c.name)} ${RNAME[x.r]}" src="${art}">` : `<img class="kc-full" alt="${ui.esc(c.name)} ${RNAME[x.r]}" data-thumb="${art}">`}
         <span class="kc-tag">${RNAME[x.r]}${x.v === 'h' ? ' · Holo' : x.v === 'f' ? ' · Full Art' : ''}</span>
         ${o.count > 1 ? `<span class="kc-count">×${o.count}</span>` : ''}${o.isNew ? '<span class="kc-new">Nouveau</span>' : ''}
       </div>`;
@@ -98,7 +98,7 @@
   /* ---------- Visuel d'un pack (image du dossier visuels, sinon dessin) ---------- */
   function packVisual(type, size, cat) {
     const P = K.config.packs[type];
-    if (K.vis && K.vis.has('pack-' + type)) return `<span class="pack-v img ${size || ''} t-${type}"><img alt="${ui.esc(P.name)}" src="${K.vis.url('pack-' + type)}">${cat ? `<small class="pack-cat">${ui.esc(catById[cat].name)}</small>` : ''}</span>`;
+    if (K.vis && K.vis.has('pack-' + type)) return `<span class="pack-v img ${size || ''} t-${type}"><img alt="${ui.esc(P.name)}" ${size === 'big' ? 'src' : 'data-thumb'}="${K.vis.url('pack-' + type)}">${cat ? `<small class="pack-cat">${ui.esc(catById[cat].name)}</small>` : ''}</span>`;
     return `<span class="pack-v ${size || ''} t-${type}">${ui.logo(size === 'tiny' ? 14 : size === 'big' ? 64 : 30)}<b>${ui.esc(P.name.replace('Pack ', ''))}</b>${cat ? `<small class="pack-cat">${ui.esc(catById[cat].name)}</small>` : ''}</span>`;
   }
   function backFace() { return K.vis && K.vis.has('verso') ? `<img class="verso" alt="" src="${K.vis.url('verso')}">` : backHTML(null); }
@@ -157,16 +157,18 @@
   }
 
   /* ---------- Galerie ---------- */
-  let fCat = 'all', fRar = 'all', showMissing = true;
+  let fCat = 'all', fRar = 'all', showMissing = true, limit = 48;
   function renderGallery(el) {
     const s = K.store.get(), owned = ownedIds(), packs = s.packs, dups = dupCount();
     const list = K.CARDS.filter(c => fCat === 'all' || c.cat === fCat);
-    const items = list.flatMap(c => c.r.split('').filter(r => fRar === 'all' || r === fRar).map(r => {
+    const all = list.flatMap(c => c.r.split('').filter(r => fRar === 'all' || r === fRar).map(r => {
       const vs = versions(c.id).filter(v => v.r === r);
       if (!vs.length) return showMissing ? missingHTML(c, r) : '';
       vs.sort((a, b) => (b.v !== 'n') - (a.v !== 'n'));
       return cardHTML(vs[0], { count: vs.reduce((t, v) => t + v.n, 0) });
-    })).join('');
+    })).filter(Boolean);
+    /* Affichage par lots pour ménager la mémoire du téléphone. */
+    const items = all.slice(0, limit).join('') + (all.length > limit ? `<button class="btn ghost more" data-more>Afficher plus (${all.length - limit})</button>` : '');
     el.innerHTML = `
       <div class="col-top">
         <div class="col-stat"><b>${ownedSlots()}</b><span>/ ${slots()} cartes</span></div>
@@ -184,9 +186,10 @@
     el.onclick = e => {
       const t = e.target.closest('button, .kcard'); if (!t) return;
       if (t.dataset.pack !== undefined) return openPack(Number(t.dataset.pack));
-      if (t.dataset.fc) { fCat = t.dataset.fc; return renderGallery(el); }
-      if (t.dataset.fr) { fRar = t.dataset.fr; return renderGallery(el); }
-      if (t.hasAttribute('data-fm')) { showMissing = !showMissing; return renderGallery(el); }
+      if (t.hasAttribute('data-more')) { limit += 48; return renderGallery(el); }
+      if (t.dataset.fc) { fCat = t.dataset.fc; limit = 48; return renderGallery(el); }
+      if (t.dataset.fr) { fRar = t.dataset.fr; limit = 48; return renderGallery(el); }
+      if (t.hasAttribute('data-fm')) { showMissing = !showMissing; limit = 48; return renderGallery(el); }
       if (t.dataset.c === 'code') return K.trade.redeemForm();
       if (t.dataset.c === 'recycle-all') return recycleAll();
       if (t.classList.contains('kcard')) return detail(t.dataset.id, t.dataset.r || (t.dataset.key || '').split('|')[1]);
