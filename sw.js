@@ -1,9 +1,9 @@
 /* Kardia – service worker. Changer VERSION à chaque mise à jour pour que les téléphones récupèrent les nouveaux fichiers. */
-const VERSION = 'kardia-1.6.0';
+const VERSION = 'kardia-1.7.0';
 const SHELL = [
   './', 'index.html', 'manifest.webmanifest', 'style.css',
   'config.js', 'store.js', 'dates.js', 'rules.js', 'ui.js', 'avatar.js',
-  'checkin.js', 'echeance.js', 'cards.js', 'collection.js', 'trade.js', 'quiz.js', 'missions.js', 'shop.js', 'firebase-config.js', 'duo.js', 'bonus.js', 'rank.js', 'assistant.js', 'visuels.js',
+  'checkin.js', 'echeance.js', 'cards.js', 'collection.js', 'trade.js', 'quiz.js', 'missions.js', 'shop.js', 'firebase-config.js', 'duo.js', 'bonus.js', 'rank.js', 'assistant.js', 'visuels.js', 'anecdotes.js', 'med.js',
   'chakra-petch-latin-500-normal.woff2', 'chakra-petch-latin-600-normal.woff2', 'chakra-petch-latin-700-normal.woff2',
   'barlow-latin-500-normal.woff2', 'barlow-latin-600-normal.woff2', 'barlow-latin-700-normal.woff2', 'barlow-latin-800-normal.woff2',
   'instrument-serif-latin-400-normal.woff2', 'instrument-serif-latin-400-italic.woff2', 'ibm-plex-mono-latin-400-normal.woff2', 'ibm-plex-mono-latin-500-normal.woff2', 'world.js', 'settings.js', 'onboarding.js', 'app.js',

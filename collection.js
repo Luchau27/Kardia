@@ -104,15 +104,17 @@
   function backFace() { return K.vis && K.vis.has('verso') ? `<img class="verso" alt="" src="${K.vis.url('verso')}">` : backHTML(null); }
 
   /* Dos de carte dessiné par l'appli : les textes viennent de cards.js et de config.js, donc faciles à modifier. */
-  function backHTML(c) {
+  function backHTML(c, r) {
     const B = K.config.back || {};
+    const fact = c ? ((K.FACTS && K.FACTS[c.id] && K.FACTS[c.id][r]) || c.fact) : '';
+    const know = typeof B.know === 'object' ? (B.know[r] || B.know.R) : B.know;
     const pulse = '<svg class="kb-pulse" viewBox="0 0 120 20" aria-hidden="true"><path d="M0 10h42l5-5 6 5 4 9 5-17 4 13 3-5h51" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
     return `<div class="kback ${c ? '' : 'down'}">
       <div class="kb-rays"></div><div class="kb-edge"></div><div class="kb-frame"></div>
       <p class="kb-top">${ui.esc(B.top || '')}</p>
       <div class="kb-medal"><i class="kb-ring r1"></i><i class="kb-ring r2"></i><i class="kb-ring r3"></i>
         <div class="kb-core"><b>${ui.esc(B.logo || 'Kardia')}</b>${pulse}</div></div>
-      ${c ? `<p class="kb-know">${ui.esc(B.know || '')}</p><p class="kb-fact">${ui.esc(c.fact)}</p>
+      ${c ? `<p class="kb-know">${ui.esc(know || '')}</p><p class="kb-fact">${ui.esc(fact)}</p>
       <div class="kb-foot"><span>${c.id.toUpperCase()}</span><span>${ui.esc(c.name)}</span></div>` : ''}
     </div>`;
   }
@@ -200,7 +202,7 @@
     const recycleGain = dup.reduce((t, v) => t + (v.n - 1) * K.config.recycle[v.r] * (v.v === 'n' ? 1 : 2), 0);
     const body = ui.sheet(`
       <div class="detail-card">${b ? `<button class="flipper" aria-label="Retourner la carte"><span class="flip-in"><span class="flip-front">${cardHTML(b, { cls: 'big', count: vs.reduce((t, v) => t + v.n, 0) })}</span>
-        <span class="flip-back">${K.vis && K.vis.cardImg(c.id, 'dos') ? `<img class="back-img" alt="" src="${K.vis.cardImg(c.id, 'dos')}">` : backHTML(c)}</span></span></button>` : missingHTML(c, r).replace('kcard missing', 'kcard missing big')}</div>
+        <span class="flip-back">${K.vis && K.vis.cardImg(c.id, 'dos') ? `<img class="back-img" alt="" src="${K.vis.cardImg(c.id, 'dos')}">` : backHTML(c, r)}</span></span></button>` : missingHTML(c, r).replace('kcard missing', 'kcard missing big')}</div>
       ${b ? '<p class="muted center">Touche la carte pour lire son anecdote.</p>' : ''}
       <div class="actions">
         ${recycleGain ? `<button class="btn ghost" data-d="recycle">Recycler les doublons · +${recycleGain}</button>` : ''}

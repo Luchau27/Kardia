@@ -38,6 +38,7 @@
         <p class="ech-status"><span class="pill st-${it.status}">${statusTxt}</span> ${ui.esc(it.status === 'late' ? D.relative(it.due) : it.status === 'now' ? '' : it.label)}</p></div>
       </div>
       <p>${ui.esc(r.why)}</p>
+      ${/vaccin|rappel|ror|grippe/i.test(r.title + r.id) && K.med.get().allergies ? `<p class="med-note">Pense à signaler tes allergies (${ui.esc(K.med.get().allergies)}) avant la vaccination.</p>` : ''}
       <div class="money"><span class="money-tag">Remboursement</span><p>${ui.esc(K.rules.money(r, s))}</p></div>
       <p class="reward-hint">${ui.icons.puls} Victoire : <b>+${reward}</b> ${K.config.currency.name} et <b>1 Pack Boss</b>${it.due && it.status !== 'late' ? ` · bonus de <b>+${K.config.rewards.earlyBonus}</b> si tu le fais en avance` : ''}</p>
       <div class="actions">

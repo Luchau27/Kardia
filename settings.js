@@ -8,6 +8,7 @@
       <p class="muted">Tes données restent uniquement sur ce téléphone. Pense à les sauvegarder de temps en temps.</p>
       <div class="menu">
         <button data-s="profile">Modifier mon profil santé</button>
+        <button data-s="med">Mes infos médicales</button>
         <button data-s="avatar">Changer de héros</button>
         <button data-s="export">Sauvegarder mes données</button>
         <label>Restaurer une sauvegarde<input type="file" accept="application/json,.json" hidden data-import></label>
@@ -28,6 +29,7 @@
         ui.toast('Sauvegarde téléchargée (sans les photos de preuve).');
       }
       if (a === 'install') installHelp();
+      if (a === 'med') K.med.open();
       if (a === 'images') { ui.toast('Recherche des nouvelles images…'); const ch = await K.vis.check(true); ui.close(); K.world.render(); ui.toast(ch ? 'Nouvelles images chargées.' : 'Aucune nouvelle image trouvée.'); }
       if (a === 'reset') {
         if (await ui.confirmBox('Effacer toutes tes données Kardia sur ce téléphone ?', 'Tout effacer')) { K.store.reset(); location.reload(); }

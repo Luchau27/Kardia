@@ -68,7 +68,7 @@
       <div class="col-stat"><b>${ui.esc(region().split('-')[0])}</b><span>ta région</span></div></div>
       <p class="muted small-note">Score Kardia = score de collection + 25 par étape du sentier + 40 par niveau bonus.</p>`;
     if (!K.firebaseConfig) {
-      el.innerHTML = header + `<div class="notice"><b>Le classement en ligne n’est pas encore activé.</b><p>Il faut créer le projet Firebase et coller sa configuration dans le fichier firebase-config.js (voir le guide). Ton score est déjà calculé et sera publié dès l’activation.</p></div>`;
+      el.innerHTML = header + `<div class="notice"><b>Le classement en ligne arrive bientôt.</b><p>Ton score est déjà calculé : il apparaîtra dans le classement dès son ouverture.</p></div>`;
       el.onclick = null; return;
     }
     if (!s.rank || !s.rank.optIn) {

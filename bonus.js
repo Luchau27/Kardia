@@ -4,21 +4,29 @@
   const EFS = 'https://dondesang.efs.sante.fr';
   const WORLDS = [
     { id: 'sang', icon: '🩸', name: 'Don du sang', don: true, age: [18, 70], tiers: [1, 2, 5, 10, 20], action: 'J’ai fait un don de sang', proof: true,
-      info: 'De 18 à 70 ans. Compte au moins 8 semaines entre deux dons de sang. Le prélèvement dure environ 10 minutes, mange bien avant d’y aller.', link: EFS, linkLabel: 'Trouver une collecte' },
+      info: 'De 18 à 70 ans. Compte au moins 8 semaines entre deux dons de sang. Le prélèvement dure environ 10 minutes, mange bien avant d’y aller.', link: EFS, linkLabel: 'Trouver une collecte',
+      why: 'Il faut environ 10 000 dons par jour en France pour soigner les malades et les blessés. Les globules rouges ne se conservent que 42 jours : rien ne remplace un don régulier. Un seul don peut aider plusieurs patients.' },
     { id: 'plasma', icon: '🟡', name: 'Don de plasma', don: true, age: [18, 65], tiers: [1, 3, 6, 12], action: 'J’ai fait un don de plasma', proof: true,
-      info: 'Le plasma sert à soigner et à fabriquer des médicaments. Le don se fait sur rendez-vous, dans une maison du don.', link: EFS, linkLabel: 'Prendre rendez-vous' },
+      info: 'Le plasma sert à soigner et à fabriquer des médicaments. Le don se fait sur rendez-vous, dans une maison du don.', link: EFS, linkLabel: 'Prendre rendez-vous',
+      why: 'Le plasma sert à fabriquer des médicaments vitaux pour des personnes atteintes de maladies rares ou de déficits immunitaires. La France doit en importer une grande partie : chaque don compte.' },
     { id: 'plaquettes', icon: '🧡', name: 'Don de plaquettes', don: true, age: [18, 65], tiers: [1, 3, 6], action: 'J’ai fait un don de plaquettes', proof: true,
-      info: 'Les plaquettes aident notamment les personnes soignées pour un cancer. Le don se fait sur rendez-vous, dans une maison du don.', link: EFS, linkLabel: 'Prendre rendez-vous' },
+      info: 'Les plaquettes aident notamment les personnes soignées pour un cancer. Le don se fait sur rendez-vous, dans une maison du don.', link: EFS, linkLabel: 'Prendre rendez-vous',
+      why: 'Les plaquettes ne se conservent que 7 jours. Les personnes atteintes de leucémie ou en chimiothérapie en ont besoin en permanence : les stocks doivent être renouvelés sans arrêt.' },
     { id: 'moelle', icon: '🌱', name: 'Registre moelle osseuse', don: true, age: [18, 35], tiers: [1], rew: [{ p: 1000, pack: 'boss' }], action: 'Je me suis inscrit·e au registre', proof: true,
-      info: 'L’inscription est ouverte de 18 à 35 ans, et tu restes inscrit·e jusqu’à 60 ans. Un donneur compatible peut sauver la vie d’un malade de leucémie.', link: 'https://www.dondemoelleosseuse.fr', linkLabel: 'S’inscrire' },
+      info: 'L’inscription est ouverte de 18 à 35 ans, et tu restes inscrit·e jusqu’à 60 ans. Un donneur compatible peut sauver la vie d’un malade de leucémie.', link: 'https://www.dondemoelleosseuse.fr', linkLabel: 'S’inscrire',
+      why: 'Pour environ 3 malades sur 4, aucun donneur compatible n’existe dans la famille : leur espoir repose sur des inconnus inscrits au registre. Le plus souvent, le don se fait par une simple prise de sang.' },
     { id: 'secours', icon: '⛑️', name: 'Premiers secours', tiers: [1, 2], steps: ['Suivre une formation aux premiers secours (PSC1)', 'Devenir citoyen sauveteur (appli SAUV Life ou Staying Alive)'], proofs: [true, false],
-      info: 'La formation PSC1 dure environ une journée et apprend les gestes qui sauvent. Les applis de citoyens sauveteurs t’alertent si quelqu’un fait un arrêt cardiaque près de toi.' },
+      info: 'La formation PSC1 dure environ une journée et apprend les gestes qui sauvent. Les applis de citoyens sauveteurs t’alertent si quelqu’un fait un arrêt cardiaque près de toi.',
+      why: 'Chaque année en France, des dizaines de milliers de personnes font un arrêt cardiaque hors de l’hôpital. Chaque minute sans massage cardiaque fait chuter les chances de survie : le premier témoin peut tout changer.' },
     { id: 'organes', icon: '💬', name: 'Don d’organes', tiers: [1], rew: [{ p: 600, pack: 'premium' }], steps: ['Dire à tes proches ta position sur le don d’organes'], proofs: [false],
-      info: 'En France, chacun est donneur présumé, sauf inscription au registre des refus. Le plus important : que tes proches connaissent ta position, quelle qu’elle soit.' },
+      info: 'En France, chacun est donneur présumé, sauf inscription au registre des refus. Le plus important : que tes proches connaissent ta position, quelle qu’elle soit.',
+      why: 'Plus de 20 000 personnes ont besoin d’une greffe chaque année en France. Dans un moment très difficile, savoir ce que tu voulais aide tes proches à respecter ton choix.' },
     { id: 'duo', icon: '🤝', name: 'Duo santé', tiers: [1, 3, 5], action: 'J’ai accompagné un ami à un rendez-vous santé', proof: true, invite: true,
-      info: 'Un dépistage, un vaccin, un don : c’est plus facile à deux. Invite un ami, accompagne-le, et prenez une photo ensemble.' },
+      info: 'Un dépistage, un vaccin, un don : c’est plus facile à deux. Invite un ami, accompagne-le, et prenez une photo ensemble.',
+      why: 'Un rendez-vous santé qu’on repousse, c’est souvent juste un rendez-vous qu’on n’a pas envie de faire seul. Être accompagné rassure et aide à passer le cap.' },
     { id: 'ambassadeur', icon: '📣', name: 'Ambassadeur', tiers: [1, 3, 5], auto: () => (K.store.get().friends || []).length, invite: true,
-      info: 'Fais découvrir Kardia à tes amis et ajoute-les dans le classement grâce à leur code ami. Chaque ami ajouté compte.' }
+      info: 'Fais découvrir Kardia à tes amis et ajoute-les dans le classement grâce à leur code ami. Chaque ami ajouté compte.',
+      why: 'Le meilleur rappel santé vient souvent d’un proche. À plusieurs, on se motive, et on ose plus facilement prendre rendez-vous.' }
   ];
   const LEVEL_REWARDS = [{ p: 500, pack: 'standard' }, { p: 800, pack: 'premium' }, { p: 1200, pack: 'premium' }, { p: 1500, pack: 'boss' }, { p: 2000, pack: 'boss' }];
   const rewardOf = (w, lvl) => (w.rew && w.rew[lvl]) || LEVEL_REWARDS[Math.min(lvl, LEVEL_REWARDS.length - 1)];
@@ -49,23 +57,29 @@
     WORLDS.filter(w => w.auto).forEach(w => { if (levelFor(w, stateOf(w).count) > (stateOf(w).level || 0)) setTimeout(() => settle(w), 300); });
     el.innerHTML = `<p class="muted">Des gestes solidaires qui ne sont pas des rendez-vous obligatoires, mais qui comptent. Chaque niveau franchi rapporte des packs et fait monter ton score Kardia.</p>
       ${noDons ? '<p class="muted small-note">Les dons sont en bas de la liste, si un jour ça te tente. Les autres niveaux rapportent exactement autant.</p>' : ''}
+      <button class="med-btn" data-med><span><b>${K.med.filled() ? 'Mes infos médicales' : 'Compléter mes infos médicales'}</b><small>Groupe sanguin, poids, grossesse, allergies… pour savoir si tu peux donner.</small></span>${ui.icons.chevron}</button>
       <div class="worlds">${sorted.map(w => {
         const st = stateOf(w), lvl = st.level || 0, max = w.tiers.length, done = lvl >= max;
         const next = done ? 'Niveau maximum' : w.steps ? w.steps[lvl] : `${Math.min(st.count, w.tiers[lvl])} / ${w.tiers[lvl]}`;
-        return `<button class="world ${done ? 'done' : ''}" data-w="${w.id}"><span class="w-ico">${icon(w)}</span><b>${ui.esc(w.name)}</b>
-          <span class="w-lvl">Niveau ${lvl} / ${max}</span><span class="dots">${w.tiers.map((_, k) => `<i class="${k < lvl ? 'on' : ''}"></i>`).join('')}</span><small>${ui.esc(next)}</small>
-          ${done ? '' : `<span class="w-rew">${K.missions.rewardBadge(rewardOf(w, lvl), 'sm')}</span>`}</button>`;
+        const chk = K.med.donCheck(w.id);
+        return `<button class="world ${done ? 'done' : ''} ${chk.ok ? '' : 'paused'}" data-w="${w.id}"><span class="w-ico">${icon(w)}</span><b>${ui.esc(w.name)}</b>
+          <span class="w-lvl">Niveau ${lvl} / ${max}</span><span class="dots">${w.tiers.map((_, k) => `<i class="${k < lvl ? 'on' : ''}"></i>`).join('')}</span><small>${ui.esc(chk.ok ? next : 'Pas pour le moment')}</small></button>`;
       }).join('')}</div>`;
-    el.onclick = e => { const b = e.target.closest('[data-w]'); if (b) open(b.dataset.w); };
+    el.onclick = e => { if (e.target.closest('[data-med]')) return K.med.open(); const b = e.target.closest('[data-w]'); if (b) open(b.dataset.w); };
   }
 
   function open(id) {
     const w = WORLDS.find(x => x.id === id), st = stateOf(w), lvl = st.level || 0, done = lvl >= w.tiers.length;
     const stairs = w.tiers.map((t, k) => `<li class="${k < lvl ? 'ok' : k === lvl ? 'cur' : ''}"><span class="st-n">${k < lvl ? ui.icons.check : `<i>${k + 1}</i>`}</span><span class="st-t"><b>Niveau ${k + 1}</b><small>${w.steps ? ui.esc(w.steps[k]) : `${t} fois`}</small></span>${K.missions.rewardBadge(rewardOf(w, k), 'sm')}</li>`).reverse().join('');
-    const canAct = !done && !w.auto;
+    const chk = K.med.donCheck(w.id);
+    const canAct = !done && !w.auto && chk.ok;
     const body = ui.sheet(`<div class="ech-head"><div class="ech-emoji w-ico">${icon(w)}</div><div><p class="ech-boss">Niveau bonus</p><h2 class="sheet-title">${ui.esc(w.name)}</h2>
       <p class="ech-status">${w.auto ? `${st.count} ami${st.count > 1 ? 's' : ''} ajouté${st.count > 1 ? 's' : ''}` : w.steps ? '' : `${st.count} fois au total`}</p></div></div>
+      ${w.why ? `<div class="why"><b>Pourquoi c’est précieux</b><p>${ui.esc(w.why)}</p></div>` : ''}
       <p>${ui.esc(w.info)}</p>
+      ${chk.blocks.length ? `<div class="asst-warn"><b>Pas pour le moment</b> ${chk.blocks.map(ui.esc).join(' ')}</div>` : ''}
+      ${chk.notes.map(n => `<p class="med-note">${ui.esc(n)}</p>`).join('')}
+      ${w.don && !K.med.filled() ? '<button class="btn text wide" data-b="med">Vérifier si je peux donner (infos médicales)</button>' : ''}
       <ol class="stairs">${stairs}</ol>
       <div class="actions">
         ${w.link ? `<a class="btn doctolib" href="${w.link}" target="_blank" rel="noopener">${ui.esc(w.linkLabel)}</a>` : ''}
@@ -76,6 +90,7 @@
     body.onclick = e => {
       const a = e.target.closest('[data-b]'); if (!a) return;
       if (a.dataset.b === 'invite') K.duo.invite(w.name);
+      if (a.dataset.b === 'med') K.med.open(() => open(w.id));
       if (a.dataset.b === 'rank') { ui.close(); K.world.openPanel('rank'); }
       if (a.dataset.b === 'do') {
         const needProof = w.steps ? w.proofs[lvl] : w.proof;
